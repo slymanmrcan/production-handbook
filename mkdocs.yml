@@ -1,0 +1,245 @@
+site_name: Sunucu Kurulum Rehberi
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  language: tr
+  palette:
+    # Light Mode
+    - scheme: default
+      primary: white
+      accent: sky
+      toggle:
+        icon: material/brightness-7
+        name: Karanlık moda geç
+    # Dark Mode
+    - scheme: slate
+      primary: slate
+      accent: sky
+      toggle:
+        icon: material/brightness-5
+        name: Aydınlık moda geç
+  font:
+    text: Space Grotesk
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.path
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+
+nav:
+  - Ana Sayfa: index.md
+  - Bulut Altyapisi:
+      - Bulut Temelleri & Kiyaslama: cloud/aws/concepts.md
+      - Cloud Guardrails:
+          - Genel: cloud/shared/index.md
+          - IAM Guardrails: cloud/shared/iam-guardrails.md
+          - Secret Yonetimi: cloud/shared/secrets.md
+          - Cost Guardrails: cloud/shared/cost-guardrails.md
+      - Oracle Cloud:
+          - Genel Bakis: cloud/oracle/overview.md
+          - CLI & Araclar: cloud/oracle/cli.md
+          - Network (VCN): cloud/oracle/network.md
+          - Block Volume (Storage): cloud/oracle/storage.md
+      - AWS:
+          - AWS CLI: cloud/aws/cli.md
+          - AWS EC2: cloud/aws/ec2.md
+          - AWS Ag & Guvenlik: cloud/aws/networking.md
+          - AWS EBS (Depolama): cloud/aws/storage.md
+      - Google Cloud:
+          - Genel Bakis: cloud/google/overview.md
+          - GCloud CLI: cloud/google/cli.md
+          - VPC & Firewall: cloud/google/networking.md
+          - Compute Engine: cloud/google/compute.md
+          - Persistent Disk & Snapshot: cloud/google/storage.md
+  - Sistem Yonetimi (Ops):
+      - Kurulum & Konfigurasyon:
+          - Genel: how-to/index.md
+          # === TEMEL SİSTEM ===
+          - Temel OS: how-to/base-os.md
+          - Cloud-Init (First Boot): how-to/cloud-init.md
+          - Netplan & DNS Temeli: how-to/network-baseline.md
+          - Disk & LVM Yonetimi: how-to/storage-lvm.md
+          - Kullanici Yonetimi: how-to/user-management.md
+          - Shell Konfigürasyonu (.bashrc): how-to/shell-config.md
+          - Dosya İzinleri (chmod, chown): how-to/file-permissions.md
+          - Paket Yonetimi: how-to/package-management.md
+          - Swap Bellek: how-to/swap.md
+          # === ALTYAPI ===
+          - Docker Kurulum & Storage: how-to/docker.md
+          - Docker Compose Rehberi: how-to/docker-compose.md
+          - Dockerfile Yazma: how-to/dockerfile-doc.md
+          - Nginx: how-to/nginx.md
+          - Reverse Proxy: how-to/reverse-proxy.md
+          - TLS: how-to/tls.md
+          # === OTOMASYON ===
+          - Systemd Servis: how-to/systemd-service.md
+          - Zamanlanmış Görevler (Cron): how-to/cron.md
+          # === BAKIM & İZLEME ===
+          - Monitoring: how-to/monitoring.md
+          - Monitoring Stack: how-to/monitoring-stack.md
+          - Merkezi Loglama: how-to/centralized-logging.md
+          - Logrotate: how-to/logrotate.md
+          - Yedekleme (Backup): how-to/backups.md
+          - DR Drill (Restore Test): how-to/disaster-recovery-drill.md
+          - Sistem Snapshot (Timeshift): how-to/snapshots.md
+          - Sistem Klonlama (Tar): how-to/system-clone.md
+          # === NETWORK ===
+          - Ag/Port Kontrolleri: how-to/port-checks.md
+      - Olay Mudahale (Runbooks):
+          - Genel: runbooks/index.md
+          - Olay Yonetimi: runbooks/incident-response.md
+          - Servis Kesintisi: runbooks/service-down.md
+          - Deploy Geri Alma: runbooks/deploy-rollback.md
+          - Disk Dolu: runbooks/disk-full.md
+          - Inode Dolu: runbooks/inode-full.md
+          - Disk IO: runbooks/disk-io.md
+          - OOM Kill / Memory Leak: runbooks/oom-kill.md
+          - CPU Spike: runbooks/cpu-spike.md
+          - Veritabani Down: runbooks/db-down.md
+          - TLS Yenileme: runbooks/tls-renewal.md
+          - Sertifika Suresi Doldu: runbooks/cert-expired.md
+          - DNS Sorunlari: runbooks/dns-issues.md
+          - Network Latency: runbooks/network-latency.md
+          - LB Healthcheck: runbooks/lb-healthcheck.md
+          - DDoS / Rate Limit: runbooks/ddos-rate-limit.md
+          - Replication Lag: runbooks/replication-lag.md
+          - Backup Restore Fail: runbooks/backup-restore-fail.md
+          - Config Deploy Hatasi: runbooks/config-deploy-fail.md
+          - SSH Lockout: runbooks/ssh-lockout.md
+  
+  # === REFERANS ===
+  - Referans & Komutlar:
+      - Genel: reference/index.md
+      - Dosya Islemleri: reference/commands/file.md
+      - Disk & Kaynak: reference/commands/disk.md
+      - Ag & Port: reference/commands/network.md
+      - Docker Komutlari: reference/commands/docker.md
+      - Sistem & Servis: reference/commands/system.md
+
+  # === GÜVENLİK ===
+  - Guvenlik:
+      - Genel: security/index.md
+      - SSH Hardening: security/ssh.md
+      - Firewall: security/firewall.md
+      - Fail2ban: security/fail2ban.md
+      - SSHGuard: security/sshguard.md
+      - CrowdSec: security/crowdsec.md
+      - Google Auth (2FA): security/2fa.md
+      - Otomatik Guncellemeler: security/updates.md
+      - Kernel Hardening (Sysctl): security/sysctl.md
+      - Kernel Sozlugu (Detay): security/sysctl-glossary.md
+      - Derleyici Kisitlama: security/compilers.md
+      - Kaynak Kisitlama (CPU/RAM): security/resource-limits.md
+      - Docker Guvenligi (Hardening): security/docker.md
+      - Docker Gateway Mimarisi: security/docker-gateway.md
+      - Izleme ve Anomali (Alerts): security/monitoring.md
+      - Dosya Butunlugu (AIDE): security/fim.md
+      - Tmp Guvenligi (Noexec): security/tmp-hardening.md
+      - Secret Yonetimi (Sifreler): security/secrets.md
+      - Servis Temizligi: security/services.md
+      - Servis Sozlugu: security/service-glossary.md
+      - Malware & Rootkit: security/malware.md
+      - Honeypot & Tarpit: security/tarpit.md
+      - Cowrie Tam Rehber (Analiz & Yönetim): security/cowrie-analysis.md
+      - Bastion Host (Jump Box): security/bastion.md
+      - Uyumluluk (OpenSCAP): security/compliance.md
+      - Ileri Seviye (SIEM/EDR): security/advanced-tools.md
+      - Lynis: security/lynis.md
+  
+  # === PRODUCTION HAZIRLIK ===
+  - Sablonlar (Templates):
+      - Docker Compose (Base): file-templates/docker-compose.md
+      - PostgreSQL (Prod): file-templates/postgres.md
+      - MariaDB (Prod): file-templates/mariadb.md
+      - Redis (Prod): file-templates/redis.md
+      - Nginx (Prod): file-templates/nginx.md
+      - Nginx Proxy Manager (UI): file-templates/nginx-proxy-manager.md
+      - .NET Backend (Prod): file-templates/dotnet-backend.md
+      - Monitoring Stack (Prometheus): file-templates/monitoring-stack.md
+      - Env Example: file-templates/env-example.md
+      - Systemd Service: file-templates/systemd.md
+
+  - Uygulama Ornekleri (Recipes):
+      - Genel: recipes/index.md
+      - .NET Core Hardening: recipes/dotnet.md
+      - React + Nginx: recipes/react.md
+      - PostgreSQL Tuning: recipes/postgres.md
+      - MySQL / MariaDB: recipes/mysql.md
+      - Redis Cache: recipes/redis.md
+      - Traefik Proxy: recipes/traefik.md
+      - Nginx Proxy Security: recipes/nginx.md
+
+  - Kontrol Listeleri:
+      - Ilk Kurulum: checklists/server-first-setup.md
+      - Docker App Launch: checklists/app-launch.md
+      - Go/No-Go Decision: checklists/prod-ready.md
+
+  # === OTOMASYON ===
+  - Scriptler:
+      - Genel: scripts/index.md
+      - Bash Script Rehberi: scripts/bash-guide.md
+      - Otomasyon: scripts/automation.md
+      - Standartlar: scripts/conventions.md
+      - Calistirma: scripts/execution.md
+      - Guvenlik: scripts/safety.md
+      - Kutuphane (Ready-to-Use):
+          - Server Bootstrap (Init): scripts/library/bootstrap.md
+          - Haftalik Bakim (Cleaner): scripts/library/maintenance.md
+          - Veritabani Yedekleme: scripts/library/backup.md
+          - Guvenlik Denetimi (Audit): scripts/library/audit.md
+          - Saglik Kontrolu (Health Check): scripts/library/health-check.md
+          - DB Restore (Geri Donus): scripts/library/restore.md
+
+  # === PLANLAMA & SORUN ÇÖZME ===
+  - Mimari & Tasarim:
+      - Genel Bakis (Diagrams): architecture/overview.md
+      - Port Stratejisi: architecture/port-strategy.md
+
+  - Troubleshooting:
+      - Metodoloji (USE/RED): troubleshooting/index.md
+      - Hizli Teshis (Cheat Sheet): troubleshooting/cheat-sheet.md
+      - Performans Analizi (CPU/RAM): troubleshooting/performance.md
+      - Ag Analizi (Network): troubleshooting/network.md
+      - Yaygin Sorunlar: troubleshooting/common-issues.md
+
+  - Android Publishing:
+      - Overview: android/index.md
+      - Keystore Basics: android/01-keystore-basics.md
+      - Keystore Deep Dive: android/keystore.md
+      - Gradle Config: android/02-gradle-config.md
+      - Build & Release: android/03-build-release.md
+      - Google Play: android/04-google-play.md
+      - Troubleshooting: android/05-troubleshooting.md
+      - App Transfer: android/06-app-transfer.md
+      - Fastlane Automation: android/07-fastlane-automation.md
+      - CI/CD Pipelines: android/08-ci-cd-pipelines.md
+      - Monitoring: android/09-post-release-monitoring.md
+      - Advanced Practices: android/10-advanced-practices.md
