@@ -4,7 +4,7 @@ Production-ready Linux sunucu kurulumu için kapsamlı rehber.
 
 ## 📖 Dokümantasyon
 
-**Canlı Site:** [https://suleymanmrcn.github.io/server-guide/](https://suleymanmrcn.github.io/server-guide/)
+**Canlı Site:** [https://slymanmrcan.github.io/production-handbook/](https://slymanmrcan.github.io/production-handbook/)
 
 ## 🎯 Özellikler
 
@@ -17,7 +17,7 @@ Production-ready Linux sunucu kurulumu için kapsamlı rehber.
 
 ```bash
 # Repoyu klonla
-git clone https://github.com/suleymanmrcn/server-guide.git
+git clone https://github.com/slymanmrcan/production-handbook
 cd server-guide
 
 # MkDocs'u kur
