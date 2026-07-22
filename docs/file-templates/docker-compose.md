@@ -13,8 +13,6 @@ Bu sayfa production'a dogrudan kopyalanacak bir "baseline" sunar. Amaç tek dosy
 ## Template
 
 ```yaml
-version: "3.8"
-
 services:
   app:
     build:
