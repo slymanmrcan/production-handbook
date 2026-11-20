@@ -90,13 +90,12 @@ Dokümanlarda, reçetelerde ve şablonlarda tutarlılık için aşağıdaki hede
 Tasarım sistemi [`docs/stylesheets/extra.css`](docs/stylesheets/extra.css) ve [`docs/javascripts/extra.js`](docs/javascripts/extra.js) dosyalarında tanımlıdır:
 
 - **Renk Şeması:** Varsayılan **Dark Mode** (`slate`), toggle ile **Light Mode** (`default`).
-- **Fontlar:** `Space Grotesk` (metin) + `JetBrains Mono` (kod/badge).
+- **Fontlar:** `Space Grotesk` (metin) + `JetBrains Mono` (kod ve kısa etiketler).
 - **Özel CSS Sınıfları (Landing / Portal Sayfaları İçin):**
-  - Hero: `.sh-hero`, `.sh-hero__content`, `.sh-eyebrow`, `.sh-hero__title`, `.sh-hero__desc`, `.sh-hero__actions`, `.sh-stats`, `.sh-stat`
-  - Butonlar: `.sh-btn`, `.sh-btn--primary`, `.sh-btn--ghost`
-  - Yaşam Döngüsü Kartları (3 sütun): `.sh-stepper`, `.sh-step`, `.sh-step__tag` (`--sky`, `--violet`, `--emerald`)
-  - Bento Grid (2 sütun): `.sh-bento`, `.sh-card`, `.sh-card--featured`, `.sh-card__head`, `.sh-card__title`, `.sh-card__desc`, `.sh-card__links`
-  - Etiketler: `.sh-pill`, `.sh-pill--ai`
+  - Ana sayfa: `.sh-home`, `.sh-hero`, `.sh-platforms`, `.sh-hero__actions`, `.sh-btn`
+  - Doğrulama komutları: `.sh-terminal`
+  - Yaşam döngüsü: `.sh-stepper`, `.sh-step`, `.sh-step__tag`
+  - Hızlı erişim: `.sh-bento`, `.sh-card`
 
 > **Tasarım Kuralı:** Standart rehber sayfalarında saf Markdown + Admonition + Tab + Mermaid kullanın. Özel `.sh-*` HTML sınıflarını yalnızca portal/giriş sayfalarında (`docs/index.md` gibi) kullanın ve yeni inline `style="..."` yazmak yerine `extra.css` token'larını (`--surface-card`, `--accent`, `--border-subtle`) tercih edin.
 
