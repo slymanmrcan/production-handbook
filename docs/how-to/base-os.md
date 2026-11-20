@@ -1,6 +1,9 @@
-# Temel OS Kurulumu 🖥️
+# İlk bağlantı ve temel sistem { #temel-os-kurulumu }
 
-Yeni bir Ubuntu/Debian sunucusuna ilk giriş yaptıktan sonra yapılması gereken temel ayarlar burada toplanır. Amaç "sunucu açıldı" demek değil, **öngörülebilir bir host baseline** oluşturmaktır.
+Yeni Ubuntu veya Debian sunucuna [SSH ile bağlan](#1-ilk-baglant-ssh), sistemi güncelle ve günlük yönetim için bir sudo hesabı hazırla.
+
+!!! info "Bağlanmadan önce"
+    Sunucunun IP adresini ve başlangıç hesabını sağlayıcı panelinden kontrol et. Ağ veya SSH ayarlarını değiştirirken kurtarma konsoluna erişebildiğinden emin ol.
 
 ---
 
@@ -26,20 +29,15 @@ Kısa karar özeti:
 
 ## 1. İlk Bağlantı (SSH)
 
-### Root ile İlk Giriş
+Sağlayıcının verdiği kullanıcı adını ve sunucunun IP adresini aşağıdaki komuta yaz. Başlangıç hesabı bir sudo kullanıcısıysa yetki gerektiren komutları `sudo` ile çalıştır.
 
 ```bash
-# Varsayılan SSH portu (22)
-ssh root@SUNUCU_IP
-
-# Özel port kullanıyorsanız
-ssh -p 2222 root@SUNUCU_IP
-
-# SSH key ile bağlanma
-ssh -i ~/.ssh/id_rsa root@SUNUCU_IP
+ssh KULLANICI@SUNUCU_IP
 ```
 
-İlk bağlantıda amaç sadece içeri girmek değil, **root bağımlılığından çıkış planını** hemen uygulamaktır. Root ile bağlandıktan sonra sıradaki adım:
+Özel bir SSH portu kullanıyorsan `-p PORT`, farklı bir anahtar dosyası kullanıyorsan `-i ANAHTAR_DOSYASI` seçeneğini ekle.
+
+İlk bağlantıdan sonra şu sırayı izle.
 
 1. sistemi patchlemek,
 2. dedicated sudo user açmak,
@@ -155,7 +153,7 @@ groups deployer
 
 ### SSH Key Kopyalama
 
-Root'tan yeni kullanıcıya SSH key'i kopyalayın:
+Anahtar root hesabına tanımlıysa aşağıdaki komutları kullan. Başka bir hesapla bağlandıysan yeni yönetici için yetkilendireceğin public key'i `/home/deployer/.ssh/authorized_keys` dosyasına ekle ve aynı sahiplik ve izin kontrollerini uygula.
 
 ```bash
 mkdir -p /home/deployer/.ssh

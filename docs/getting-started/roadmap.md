@@ -1,68 +1,63 @@
-# Sunucu Kurulum Yol Haritası (Day 0 → Day 1 → Day 2) 🗺️
+# Sunucu kurulum yol haritası
 
-Bu sayfa, sıfırdan bir Linux (Ubuntu/Debian) sunucuyu **production-ready** hale getirip uygulama yayınlamak için **tek giriş noktasıdır**. Dağınık dokümanlar arasında kaybolmadan aşağıdaki 3 fazı sırayla takip edin.
+Yeni bir Ubuntu veya Debian sunucusu kuruyorsan Day 0 ile başla. Sunucun hazırsa bulunduğun aşamayı seç ve devam etmeden önce o aşamanın kontrollerini tamamla.
 
-```mermaid
-flowchart LR
-    D0["Day 0: Hazırlık & Temel<br/>Cloud, OS, SSH, UFW, Docker"] --> V0{"Verify Gate 0<br/>First Setup Checklist"}
-    V0 --> D1["Day 1: Mimari & Uygulama<br/>Gateway, Proxy, Stack, Deploy"]
-    D1 --> V1{"Verify Gate 1<br/>App Launch & Go/No-Go"}
-    V1 --> D2["Day 2: Operasyon & Bakım<br/>Monitoring, Backup, DR, Runbooks"]
-```
+- [Day 0 · Sunucuyu hazırla](#day-0)
+- [Day 1 · Uygulamayı yayınla](#day-1)
+- [Day 2 · Canlı sistemi işlet](#day-2)
 
----
+!!! info "Başlamadan önce"
+    Sunucunun IP adresine, sağlayıcının verdiği başlangıç hesabına ve kendi SSH anahtarına ihtiyacın var. Ağ veya SSH ayarlarını değiştirmeden önce sağlayıcının kurtarma konsoluna erişebildiğini doğrula. Uygulamayı HTTPS üzerinden yayınlamak için yönetebildiğin bir alan adı veya alt alan adı hazırla.
 
-## Faz 0 — Day 0: Sunucu Hazırlığı & Temel Güvenlik { #day-0 }
+## Sunucuyu hazırla { #day-0 }
 
-Amaç: Temiz bir VPS/VM'i güvenli, güncellenebilir ve Docker çalıştırmaya hazır taban (baseline) haline getirmek.
+**Day 0 hedefi:** Yetkili hesabınla SSH üzerinden bağlanabiliyorsun ve Docker çalışıyor.
 
-| Sıra | Adım | Rehber / Araç | Doğrulama (Verify) |
-| :--- | :--- | :--- | :--- |
-| **0.1** | Bulut hesabı, IAM ve maliyet sınırları | [Cloud Guardrails](../cloud/shared/index.md) | Bütçe alarmı ve MFA aktif olmalı. |
-| **0.2** | Temel OS, timezone, locale, kullanıcı & swap | [Temel OS](../how-to/base-os.md) · [Cloud-Init](../how-to/cloud-init.md) · [Swap](../how-to/swap.md) | `hostnamectl`, `timedatectl`, `free -h` beklenen değerleri dönmeli. |
-| **0.3** | Ağ ve disk temeli | [Netplan & DNS](../how-to/network-baseline.md) · [Disk & LVM](../how-to/storage-lvm.md) | `ip a`, `lsblk`, `df -h` temiz olmalı. |
-| **0.4** | Zorunlu güvenlik baseline'ı | [SSH Hardening](../security/ssh.md) · [Firewall (UFW)](../security/firewall.md) · [Fail2Ban](../security/fail2ban.md) · [Otomatik Güncelleme](../security/updates.md) | `sshd -t`, `ufw status verbose`, `fail2ban-client status sshd`. |
-| **0.5** | Docker Engine & Gateway ağı | [Docker Kurulum](../how-to/docker.md) · [Docker Gateway Mimarisi](../security/docker-gateway.md) | `systemctl is-active docker` ve `docker compose version`. |
-| **0.6** | Hızlı otomasyon (Opsiyonel) | [Server Bootstrap Script](../scripts/library/bootstrap.md) | Script idempotent şekilde hatasız tamamlanmalı. |
+Henüz sunucun yoksa [bulut hazırlığından](../cloud/shared/index.md) başla. Sağlayıcıya özel rehberler **Kurulum** menüsünde bulunur.
 
-> **Kapı (Gate 0):** Day 1'e geçmeden önce [İlk Kurulum Doğrulama Protokolü](../checklists/server-first-setup.md) maddelerinin tamamı yeşil olmalıdır.
+1. **İlk bağlantıyı kur.** Sunucuna [SSH ile bağlan](../how-to/base-os.md#1-ilk-baglant-ssh), sistemi güncelle ve günlük yönetim için bir sudo hesabı oluştur.
+2. **Sistemi gözden geçir.** Sunucunun saatini, ağını ve diskini kontrol et. Ayrı bir ayar gerekiyorsa [ağ ve DNS](../how-to/network-baseline.md), [disk ve LVM](../how-to/storage-lvm.md) veya [swap](../how-to/swap.md) rehberine bak.
+3. **Erişimi güvenli hale getir.** [SSH ayarlarını](../security/ssh.md) ve [UFW kurallarını](../security/firewall.md) uygula. Mevcut oturumu kapatmadan ikinci bir terminalde yeniden bağlan. [Fail2ban](../security/fail2ban.md) ve [otomatik güvenlik güncellemelerini](../security/updates.md) ayarla.
+4. **Docker’ı kur.** [Docker Engine ve Compose](../how-to/docker.md) kurulumunu bitir. [Docker Gateway kuralını](../security/docker-gateway.md) incele ve iç servisleri özel ağda tut.
 
----
+??? example "Kurulumu otomatikleştir"
+    Aynı kurulumu birden fazla sunucuda tekrarlıyorsan [Cloud-Init](../how-to/cloud-init.md) veya [Bootstrap betiğini](../scripts/library/bootstrap.md) incele.
 
-## Faz 1 — Day 1: Mimari, Stack ve Uygulama Yayını { #day-1 }
+!!! check "Day 1’e geçmeden önce"
+    - `sudo sshd -t` hata vermemeli. Yeni SSH oturumu ve `sudo -v` başarılı olmalı.
+    - `sudo ufw status verbose` beklediğin erişim kurallarını göstermeli.
+    - `systemctl is-active docker` çıktısı `active` olmalı ve `docker compose version` sürümü göstermeli.
 
-Amaç: Uygulama servislerini, reverse proxy'yi, TLS sertifikalarını ve veritabanlarını izole şekilde ayağa kaldırmak.
+    [İlk kurulum kontrol listesini tamamla](../checklists/server-first-setup.md).
 
-| Sıra | Adım | Rehber / Blueprint | Doğrulama (Verify) |
-| :--- | :--- | :--- | :--- |
-| **1.1** | Topoloji ve port planı | [Mimari Genel Bakış](../architecture/overview.md) · [Port Stratejisi](../architecture/port-strategy.md) | Public sadece `80/443`; uygulama ve DB `127.0.0.1` veya internal ağda. |
-| **1.2** | Reverse Proxy & TLS | [Reverse Proxy](../how-to/reverse-proxy.md) · [Nginx](../recipes/nginx.md) · [Traefik](../recipes/traefik.md) · [TLS](../how-to/tls.md) | `nginx -t` ve `certbot certificates` geçerli olmalı. |
-| **1.3** | Uygulama & veri katmanı reçeteleri | [.NET](../recipes/dotnet.md) · [React](../recipes/react.md) · [PostgreSQL](../recipes/postgres.md) · [MySQL/MariaDB](../recipes/mysql.md) · [Redis](../recipes/redis.md) | `docker compose config` hatasız render edilmeli; container `healthy` olmalı. |
-| **1.4** | Hazır config şablonları | [Docker Compose](../file-templates/docker-compose.md) · [Env Example](../file-templates/env-example.md) · [Systemd](../file-templates/systemd.md) | Hardcoded secret yok; `.env` izinleri `600`. |
-| **1.5** | AI destekli geliştirme uyumu | [AI-Based Development](../ai-dev/index.md) · [AI Denetim Kapıları](../ai-dev/ai-audit-gates.md) | AI üretimi Dockerfile/Compose/Nginx konfigürasyonları denetimden geçmiş olmalı. |
+## Uygulamayı yayınla { #day-1 }
 
-> **Kapı (Gate 1):** Trafik yönlendirilmeden önce [Docker App Launch](../checklists/app-launch.md) ve [Go / No-Go Decision Matrix](../checklists/prod-ready.md) tamamlanmalıdır.
+**Day 1 hedefi:** Uygulamaya reverse proxy üzerinden HTTPS ile erişiliyor ve iç servisler izole.
 
----
+1. **Trafik yolunu planla.** [Mimariyi](../architecture/overview.md) ve [port stratejisini](../architecture/port-strategy.md) incele. HTTP ve HTTPS trafiğini reverse proxy karşılar. Uygulama ve veritabanı özel ağda veya localhost üzerinde kalır.
+2. **Uygulamayı çalıştır.** [Compose şablonunu](../file-templates/docker-compose.md) ve kullandığın servislerin [uygulama reçetelerini](../recipes/index.md) temel al. Parola ve anahtarları [secrets rehberine](../security/secrets.md) göre yönet.
+3. **HTTPS erişimini kur.** [Reverse proxy’yi](../how-to/reverse-proxy.md) kur, alan adını sunucuya yönlendir ve [TLS sertifikasını](../how-to/tls.md) ayarla. Proxy seçimine göre [Nginx](../recipes/nginx.md) veya [Traefik](../recipes/traefik.md) reçetesini takip et.
 
-## Faz 2 — Day 2: İzleme, Yedekleme ve Olay Müdahale { #day-2 }
+??? example "Yapılandırma şablonları ve AI ile geliştirme"
+    - [.env örneği](../file-templates/env-example.md) ve [systemd servis şablonu](../file-templates/systemd.md)
+    - [AI destekli geliştirme](../ai-dev/index.md) ve [üretilen yapılandırmaları denetleme](../ai-dev/ai-audit-gates.md)
 
-Amaç: Canlıdaki sistemi gözlemlemek, veri kaybını önlemek ve arıza anında panik yapmadan müdahale etmek.
+!!! check "Kullanıcı trafiğini açmadan önce"
+    - `docker compose config --quiet` hata vermemeli. `docker compose ps` sağlık kontrolü olan servisleri `healthy` göstermeli.
+    - Nginx kullanıyorsan `sudo nginx -t` başarılı olmalı. `curl -fsS https://app.example.com/healthz` komutunu kendi alan adın ve sağlık kontrolü yolunla çalıştırdığında uygulama başarılı yanıt vermeli.
+    - Yedekten geri dönmeyi ve önceki sürüme dönüş yolunu kontrol et.
 
-| Alan | Rehber / Araç | Doğrulama (Verify) |
-| :--- | :--- | :--- |
-| **İzleme & Loglama** | [Monitoring Stack](../how-to/monitoring-stack.md) · [Merkezi Loglama](../how-to/centralized-logging.md) · [Logrotate](../how-to/logrotate.md) | `curl -fsS http://localhost:9090/-/ready` ve `logrotate -d /etc/logrotate.conf`. |
-| **Yedekleme & DR** | [Yedekleme Stratejisi](../how-to/backups.md) · [DR Drill (Restore Test)](../how-to/disaster-recovery-drill.md) · [DB Backup Script](../scripts/library/backup.md) | Son yedeğin `gzip -t` kontrolü + staging restore testi. |
-| **Periyodik Bakım & Denetim** | [Haftalık Bakım](../scripts/library/maintenance.md) · [Güvenlik Denetimi](../scripts/library/audit.md) · [Lynis](../security/lynis.md) | `systemctl --failed` boş; disk/inode kullanımı %80 altında. |
-| **Olay Müdahale** | [Runbooks Portalı](../runbooks/index.md) · [Troubleshooting (USE/RED)](../troubleshooting/index.md) | Kritik alarmların karşılığı olan runbook biliniyor olmalı. |
+    [Uygulama yayın kontrolünü](../checklists/app-launch.md) ve [canlıya geçiş kontrolünü](../checklists/prod-ready.md) tamamla.
 
----
+## Canlı sistemi işlet { #day-2 }
 
-## Belgelerin Rol Ayrımı (Tekrarı Önleme Kuralı)
+**Day 2 hedefi:** Sorunları alarmlarla fark edebiliyor, yedekten dönebiliyor ve kesintide izleyeceğin yolu biliyorsun.
 
-Bu handbook'ta aynı teknoloji birden fazla başlıkta geçiyorsa her klasörün rolü nettir:
+1. **İzleme ve logları kur.** [İzleme sistemini](../how-to/monitoring-stack.md) yapılandır, bir test alarmının sana ulaştığını doğrula. [Merkezi loglama](../how-to/centralized-logging.md) ve [log rotasyonu](../how-to/logrotate.md) ayarlarını gözden geçir.
+2. **Yedekleri düzenli olarak doğrula.** [Yedekleme stratejini](../how-to/backups.md) belirle ve [test ortamında yedekten dön](../how-to/disaster-recovery-drill.md). Otomasyon gerekiyorsa [veritabanı yedekleme betiğine](../scripts/library/backup.md) bak.
+3. **Bakım ve olay müdahalesini planla.** [Haftalık bakım](../scripts/library/maintenance.md) ve [güvenlik denetimi](../scripts/library/audit.md) görevlerini planla. Kritik alarmları ilgili [olay müdahale rehberiyle](../runbooks/index.md) eşleştir. Belirti belirsizse [sorun giderme rehberinden](../troubleshooting/index.md) başla.
 
-- **`how-to/`**: Konuyu sıfırdan kurma ve kavramsal kullanım rehberi (*"Nasıl çalışır, nasıl kurulur?"*).
-- **`recipes/`**: Production için sertleştirilmiş uygulama ayarları (*"Canlıda nasıl tune edilir?"*).
-- **`file-templates/`**: Kopyala-yapıştır için ham konfigürasyon şablonları (*"Temiz başlangıç dosyası"*).
-- **`ai-dev/`**: AI destekli yazılım geliştirme yaparken altyapı kurallarını ve denetim kapılarını tanımlayan kontratlar (*"AI ile kod yazarken neye uyulmalı?"*).
+!!! check "Düzenli işletim kontrolleri"
+    - Prometheus kullanıyorsan `curl -fsS http://localhost:9090/-/ready` başarılı dönmeli.
+    - Son yedeğin test ortamında geri yüklenebildiğini doğrula. Sıkıştırılmış bir yedek için `gzip -t YEDEK_DOSYASI.sql.gz` dosyanın bütünlüğünü kontrol eder.
+    - `systemctl --failed` kritik servis hatası göstermemeli. `df -h` ve `df -i` ile disk ve inode kullanımını izle.

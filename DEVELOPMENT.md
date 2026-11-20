@@ -87,15 +87,15 @@ Dokümanlarda, reçetelerde ve şablonlarda tutarlılık için aşağıdaki hede
 
 ### Tema & Özel CSS Bileşenleri
 
-Tasarım sistemi [`docs/stylesheets/extra.css`](docs/stylesheets/extra.css) ve [`docs/javascripts/extra.js`](docs/javascripts/extra.js) dosyalarında tanımlıdır:
+Tasarım sistemi [`docs/stylesheets/extra.css`](docs/stylesheets/extra.css) dosyasında tanımlıdır.
 
-- **Renk Şeması:** Varsayılan **Dark Mode** (`slate`), toggle ile **Light Mode** (`default`).
-- **Fontlar:** `Space Grotesk` (metin) + `JetBrains Mono` (kod ve kısa etiketler).
+- **Renk şeması:** Varsayılan karanlık tema (`slate`) ve üst menüden seçilebilen aydınlık tema (`default`).
+- **Fontlar:** `DM Sans` (metin) ve `JetBrains Mono` (kod).
 - **Özel CSS Sınıfları (Landing / Portal Sayfaları İçin):**
-  - Ana sayfa: `.sh-home`, `.sh-hero`, `.sh-platforms`, `.sh-hero__actions`, `.sh-btn`
-  - Doğrulama komutları: `.sh-terminal`
-  - Yaşam döngüsü: `.sh-stepper`, `.sh-step`, `.sh-step__tag`
-  - Hızlı erişim: `.sh-bento`, `.sh-card`
+  - Ana sayfa `.sh-home`, `.sh-hero`, `.sh-hero__actions`, `.sh-btn`
+  - Trafik şeması `.sh-topology`
+  - Kurulum adımları `.sh-stepper`, `.sh-step`, `.sh-step__tag`
+  - Hızlı erişim `.sh-quick`
 
 > **Tasarım Kuralı:** Standart rehber sayfalarında saf Markdown + Admonition + Tab + Mermaid kullanın. Özel `.sh-*` HTML sınıflarını yalnızca portal/giriş sayfalarında (`docs/index.md` gibi) kullanın ve yeni inline `style="..."` yazmak yerine `extra.css` token'larını (`--surface-card`, `--accent`, `--border-subtle`) tercih edin.
 

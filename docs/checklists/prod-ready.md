@@ -1,13 +1,13 @@
-# Go / No-Go Decision Matrix 🚦
+# Canlıya geçiş kontrol listesi { #go-no-go-decision-matrix }
 
-Canlıya çıkış (Go-Live) bir histen ibaret olamaz. Aşağıdaki matris tamamlanmadan **TRAFİK YÖNLENDİRİLEMEZ**.
+Trafiği açmadan önce zorunlu kontrolleri tamamla, varsa riskleri onaya sun ve [yayın kararını](#karar) kaydet. Yayın sonrası [ilk 15 dakika kontrollerini](#post-deploy-15-dakika-kontrolu) uygula.
 
-> [!IMPORTANT]
-> `<container>`, `<app-url>`, `<db-container>` gibi yerleri kendi ortamınıza göre doldurun. Durdurma veya restore içeren komutları önce staging ortamında çalıştırın.
+!!! warning "Komutları kendi ortamına uyarla"
+    `<container>`, `<app-url>` ve `<db-container>` yer tutucularını kendi değerlerinle değiştir. Servis durdurma ve geri yükleme senaryolarını test ortamında çalıştır.
 
-## 🔴 Blocker (Kesin Engel)
+## Zorunlu kontroller { #blocker-kesin-engel }
 
-Bu maddelerden **bir tanesi bile** eksikse, deployment iptal edilir.
+Bu kontrollerden biri başarısızsa kullanıcı trafiğini açma.
 
 | Kontrol | Verify Komutu | Beklenen Sonuç |
 | :------ | :------------ | :------------- |
@@ -21,7 +21,7 @@ Bu maddelerden **bir tanesi bile** eksikse, deployment iptal edilir.
 | **Rollback Hazırlığı** | `docker inspect <container> --format '{{.Config.Image}}'`<br>`docker image ls --digests | head` | Çalışan image net olarak tanımlı olmalı; önceki artefact erişilebilir olmalı. |
 | **Failed Units** | `systemctl --failed` | Kritik servis tarafında failed unit görünmemeli. |
 
-## 🟡 Warning (Riskli Geçiş)
+## Onay gerektiren riskler { #warning-riskli-gecis }
 
 Bu maddeler eksikse Manager onayı ile geçilebilir ama 24 saat içinde düzeltilmelidir.
 
@@ -35,7 +35,7 @@ Bu maddeler eksikse Manager onayı ile geçilebilir ama 24 saat içinde düzelti
 | **Rate Limit / Abuse Guard** | `curl -I https://<app-url>`<br>`nginx -T | rg 'limit_req|limit_conn'` | Public girişte temel abuse/rate-limit katmanı görünmeli. |
 | **Image Scan** | `trivy image <image:tag>` | Bilinen HIGH/CRITICAL açıklar yönetilmiş veya kabul edilmiş olmalı. |
 
-## 🟢 Good to Have (İyileştirme)
+## İyileştirme alanları { #good-to-have-iyilestirme }
 
 | Kontrol | Verify Komutu | Beklenen Sonuç |
 | :------ | :------------ | :------------- |
@@ -47,7 +47,7 @@ Bu maddeler eksikse Manager onayı ile geçilebilir ama 24 saat içinde düzelti
 
 ---
 
-## 🚬 Post-Deploy 15 Dakika Kontrolü
+## Yayından sonraki ilk 15 dakika { #post-deploy-15-dakika-kontrolu }
 
 Deploy tamamlandıktan sonra "çıktı geçti" demek yetmez. İlk 15 dakikada aşağıdaki kısa tur yapılmalı:
 
@@ -61,7 +61,7 @@ Deploy tamamlandıktan sonra "çıktı geçti" demek yetmez. İlk 15 dakikada a�
 
 ---
 
-## 📝 Karar
+## Karar
 
 | Durum          | Karar               | İmza/Onay |
 | :------------- | :------------------ | :-------- |

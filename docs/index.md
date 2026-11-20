@@ -2,123 +2,97 @@
 hide:
   - navigation
   - toc
+description: Ubuntu veya Debian sunucusunu hazırla, Docker ile uygulamanı yayınla ve canlı sistemi adım adım işlet.
 ---
 
 <div class="sh-home" markdown="1">
 
 <div class="sh-hero" markdown="1">
 
-<div markdown="1">
+<div class="sh-hero__intro" markdown="1">
 
-<p class="sh-platforms">Ubuntu · Debian · Docker</p>
+# Sunucunu kur,<br><span>uygulamanı yayına al.</span>
 
-# Sunucu Kurulum El Kitabı
-
-Linux sunucusunu güvenli kur, Docker ile uygulamanı yayınla ve canlı sistemi işlet.
+Ubuntu veya Debian sunucunu güvenli bir şekilde hazırla, Docker ile uygulamanı yayınla ve canlı sistemi adım adım işlet.
 
 <div class="sh-hero__actions" markdown="1">
 
-[Kuruluma başla](getting-started/roadmap.md){ .sh-btn }
-[Olay müdahale rehberleri](runbooks/index.md)
+[İlk adıma başla](getting-started/roadmap.md#day-0){ .sh-btn }
+[Yol haritasını gör](getting-started/roadmap.md)
 
 </div>
 
 </div>
 
-<div class="sh-terminal" markdown="1">
+<figure class="sh-topology">
+  <figcaption>Yayındaki trafiğin yolu</figcaption>
+  <ol class="sh-topology__flow">
+    <li class="sh-topology__internet">İnternet</li>
+    <li class="sh-topology__proxy">Reverse proxy <span>80 / 443</span></li>
+    <li class="sh-topology__private">
+      <span>Özel ağ</span>
+      <ol>
+        <li>Uygulama</li>
+        <li>Veritabanı</li>
+      </ol>
+    </li>
+  </ol>
+  <p>Sunucu yönetimi için SSH erişimi ayrı tutulur.</p>
+</figure>
 
-## Doğrulama komutları
+</div>
 
-<dl>
-  <dt>SSH yapılandırması</dt>
-  <dd><code>sudo sshd -t</code></dd>
-  <dt>Compose yapılandırması</dt>
-  <dd><code>docker compose config --quiet</code></dd>
-  <dt>Başarısız servisler</dt>
-  <dd><code>systemctl --failed</code></dd>
-</dl>
+## Kurulum adımları
 
-[Canlıya geçiş kontrol listesi](checklists/prod-ready.md)
+<div class="sh-stepper" markdown="1">
+
+<div class="sh-step" markdown="1">
+
+<p class="sh-step__tag">Day 0</p>
+
+### [Sunucuyu hazırla](getting-started/roadmap.md#day-0)
+
+İlk bağlantıyı kur, SSH erişimini ve güvenlik duvarını ayarla, Docker’ı yükle.
+
+</div>
+
+<div class="sh-step" markdown="1">
+
+<p class="sh-step__tag">Day 1</p>
+
+### [Uygulamayı yayınla](getting-started/roadmap.md#day-1)
+
+Uygulamayı özel ağda çalıştır, HTTPS erişimini kur ve yayına hazır olduğunu doğrula.
+
+</div>
+
+<div class="sh-step" markdown="1">
+
+<p class="sh-step__tag">Day 2</p>
+
+### [Canlı sistemi işlet](getting-started/roadmap.md#day-2)
+
+Servisleri izle, yedekten geri dönmeyi test et ve kesinti anında ne yapacağını bil.
 
 </div>
 
 </div>
 
-## Sunucu yaşam döngüsü
+## Belirli bir iş için geldin mi?
 
-<div class="sh-stepper">
-  <a class="sh-step" href="getting-started/roadmap/#day-0">
-    <span class="sh-step__tag">DAY 0</span>
-    <h3>Sunucuyu hazırla</h3>
-    <p>Bulut, temel sistem, SSH, UFW ve Docker.</p>
-  </a>
-  <a class="sh-step" href="getting-started/roadmap/#day-1">
-    <span class="sh-step__tag">DAY 1</span>
-    <h3>Uygulamayı yayınla</h3>
-    <p>Reverse proxy, TLS, uygulama ve veritabanı.</p>
-  </a>
-  <a class="sh-step" href="getting-started/roadmap/#day-2">
-    <span class="sh-step__tag">DAY 2</span>
-    <h3>Canlı sistemi işlet</h3>
-    <p>İzleme, yedekleme ve olay müdahalesi.</p>
-  </a>
-</div>
-
-## Hızlı erişim
-
-<div class="sh-bento" markdown="1">
-
-<div class="sh-card" markdown="1">
-
-### Kurulum ve güvenlik
-
-- [Cloud Guardrails](cloud/shared/index.md)
-- [Temel OS ve Cloud-Init](how-to/base-os.md)
-- [Server Bootstrap Script](scripts/library/bootstrap.md)
-- [Güvenlik rehberleri](security/index.md)
-- [SSH Hardening](security/ssh.md)
-- [İlk kurulum kontrol listesi](checklists/server-first-setup.md)
-
-</div>
-
-<div class="sh-card" markdown="1">
-
-### Altyapı ve uygulama
-
-- [Mimari ve topoloji](architecture/overview.md)
-- [Port stratejisi ve izolasyon](architecture/port-strategy.md)
-- [Docker Gateway mimarisi](security/docker-gateway.md)
-- [Uygulama reçeteleri](recipes/index.md)
-- [Docker App Launch Checklist](checklists/app-launch.md)
-
-</div>
-
-<div class="sh-card" markdown="1">
-
-### Operasyon ve bakım
-
-- [Monitoring Stack](how-to/monitoring-stack.md)
-- [Merkezi loglama](how-to/centralized-logging.md)
-- [Yedekleme stratejisi](how-to/backups.md)
-- [Yedekten dönme testi](how-to/disaster-recovery-drill.md)
-
-</div>
-
-<div class="sh-card" markdown="1">
-
-### AI destekli geliştirme
-
-- [Genel yaklaşım](ai-dev/index.md)
-- [Altyapı bağlamı](ai-dev/infra-context.md)
-- [Uygulama-sunucu kontratı](ai-dev/app-contracts.md)
-- [AI denetim kapıları](ai-dev/ai-audit-gates.md)
-- [Hazır AGENTS.md şablonları](ai-dev/context-templates.md)
-
-</div>
-
-</div>
-
-!!! tip "Docker ve UFW"
-    Docker, `ports: ["3000:3000"]` gibi bir eşlemeyle yayınlanan portları UFW kurallarından bağımsız olarak dışarı açabilir. İç servisleri izole etmek için [Docker Gateway rehberini](security/docker-gateway.md) takip et.
+<ul class="sh-quick" markdown="1">
+<li markdown="1">
+[Trafiği açmadan önce kontrol et](checklists/prod-ready.md)
+<span>Canlıya geçiş kontrol listesi</span>
+</li>
+<li markdown="1">
+[Bir kesintiye müdahale et](runbooks/index.md)
+<span>Belirtiye göre olay müdahale rehberleri</span>
+</li>
+<li markdown="1">
+[AI ile altyapıya uygun geliştir](ai-dev/index.md)
+<span>Uygulama kontratları ve denetim adımları</span>
+</li>
+</ul>
 
 </div>

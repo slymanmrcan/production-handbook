@@ -5,30 +5,24 @@ theme:
   favicon: assets/favicon.svg
   language: tr
   palette:
-    # Dark Mode (Default for SRE / Engineering Docs)
     - scheme: slate
       primary: black
-      accent: light blue
       toggle:
         icon: material/brightness-7
         name: Aydınlık moda geç
-    # Light Mode
     - scheme: default
       primary: white
-      accent: light blue
       toggle:
         icon: material/brightness-4
         name: Karanlık moda geç
   font:
-    text: Space Grotesk
+    text: DM Sans
     code: JetBrains Mono
   features:
     - navigation.instant
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.sections
-    - navigation.expand
     - navigation.top
     - navigation.indexes
     - navigation.path
@@ -39,9 +33,6 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
-
-extra_javascript:
-  - javascripts/extra.js
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -59,11 +50,11 @@ markdown_extensions:
   - md_in_html
 
 nav:
-  - Ana Sayfa: index.md
+  - Ana sayfa: index.md
 
   # === 1. BAŞLANGIÇ & KURULUM (DAY 0 -> DAY 1) ===
-  - Kurulum Akışı:
-      - Yol Haritası (Day 0 -> Day 2): getting-started/roadmap.md
+  - Kurulum:
+      - Yol haritası: getting-started/roadmap.md
       - Bulut Hazırlığı:
           - Cloud Guardrails:
               - Genel: cloud/shared/index.md
@@ -89,7 +80,7 @@ nav:
               - Persistent Disk & Snapshot: cloud/google/storage.md
       - Temel Sistem (Day 0):
           - Genel Bakış: how-to/index.md
-          - Temel OS: how-to/base-os.md
+          - İlk bağlantı ve temel sistem: how-to/base-os.md
           - Cloud-Init (First Boot): how-to/cloud-init.md
           - Netplan & DNS Temeli: how-to/network-baseline.md
           - Disk & LVM Yönetimi: how-to/storage-lvm.md
@@ -101,7 +92,7 @@ nav:
           - Ağ / Port Kontrolleri: how-to/port-checks.md
 
   # === 2. ALTYAPI & STACK (BLUEPRINTS & ŞABLONLAR) ===
-  - Altyapı & Stack:
+  - Uygulama ve altyapı:
       - Mimari & Tasarım:
           - Genel Bakış (Diagrams): architecture/overview.md
           - Port Stratejisi: architecture/port-strategy.md
@@ -171,7 +162,7 @@ nav:
           - Cowrie Log Analizi: security/cowrie-analysis.md
 
   # === 4. OPERASYON & MÜDAHALE (DAY 2) ===
-  - Operasyon & Müdahale:
+  - İşletim ve müdahale:
       - Bakım, İzleme & Yedekleme:
           - Monitoring: how-to/monitoring.md
           - Monitoring Stack: how-to/monitoring-stack.md
@@ -222,11 +213,11 @@ nav:
           - Sistem & Servis: reference/commands/system.md
 
   # === 5. OTOMASYON & KONTROL ===
-  - Otomasyon & Kontrol:
+  - Kontrol listeleri ve betikler:
       - Kontrol Listeleri:
           - İlk Kurulum (Day 0): checklists/server-first-setup.md
           - Docker App Launch (Day 1): checklists/app-launch.md
-          - Go / No-Go Decision Matrix: checklists/prod-ready.md
+          - Canlıya geçiş: checklists/prod-ready.md
       - Scriptler:
           - Genel: scripts/index.md
           - Bash Script Rehberi: scripts/bash-guide.md
@@ -243,7 +234,7 @@ nav:
               - DB Restore (Geri Dönüş): scripts/library/restore.md
 
   # === 6. AI-BASED DEVELOPMENT ===
-  - AI-Based Dev:
+  - AI ile geliştirme:
       - Genel Yaklaşım: ai-dev/index.md
       - Altyapı Bağlamı (AI Ne Bilsin?): ai-dev/infra-context.md
       - Uygulama-Sunucu Kontratı: ai-dev/app-contracts.md
