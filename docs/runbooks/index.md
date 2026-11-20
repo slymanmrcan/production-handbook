@@ -18,6 +18,7 @@ Bu bölüm, production ortamda "break-glass" müdahale akışlarını toplar. Am
 En yüksek değerli ilk runbook'lar:
 
 - [Olay Yonetimi](incident-response.md)
+- [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md)
 - [Servis Kesintisi](service-down.md)
 - [Veritabani Down](db-down.md)
 - [Deploy Geri Alma](deploy-rollback.md)
@@ -59,6 +60,7 @@ En yüksek değerli ilk runbook'lar:
 
 ### Erişim ve Güvenlik
 
+- [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md)
 - [SSH Erisim Kesildi](ssh-lockout.md)
 - [Olay Yonetimi](incident-response.md)
 

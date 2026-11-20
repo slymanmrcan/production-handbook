@@ -1,252 +1,69 @@
-# Firewall (UFW) Yönetimi 🛡️
+# Firewall (UFW) Yönetimi
 
-Linux sunucunuzun güvenliği için ilk savunma hattı güvenlik duvarıdır (Firewall). Biz kullanımı kolay ve güçlü olan **UFW (Uncomplicated Firewall)** aracını kullanıyoruz.
+UFW, host'a gelen trafiği varsayılan olarak reddetmek ve yalnızca gerekli girişleri açmak için kullanılır. Public girişleri [port politikasına](../architecture/port-strategy.md) göre sınırlandırın. Bulut firewall veya Security Group kurallarını da kontrol edin.
 
-> [!IMPORTANT] > **Altın Kural:** "Her şeyi kapat, sadece ihtiyacı aç." (Default Deny)
-
----
-
-## 1. Kurulum ve Hazırlık
-
-Önce UFW paketinin kurulu olduğundan emin olalım (Genelde `ufw` komutu bulunamadı hatası alıyorsanız):
+## 1. Mevcut Kuralları Kontrol Edin
 
 ```bash
 sudo apt update
-sudo apt install ufw -y
+sudo apt install ufw
+sudo ufw status verbose
+sudo ufw status numbered
+sudo ufw show added
+sudo ss -lntup
 ```
 
-Ardından temiz bir başlangıç yapalım. Eğer daha önce kurallar eklendiyse silelim.
+Çalışan bir sunucuda mevcut kuralları koruyun. Yeni kuralları ekleyip doğruladıktan sonra yalnızca artık gerekmeyen kuralları tek tek kaldırın. Değişiklik öncesi erişilebilir bir sağlayıcı konsolu ve açık bir SSH oturumu tutun. IPv6 etkinse `/etc/default/ufw` içinde `IPV6=yes` ayarını ve `ufw status` çıktısındaki IPv6 kurallarını doğrulayın.
+
+## 2. Gerekli Girişleri Açın
+
+Aktif SSH portunu `ss` çıktısından doğrulayın. Örnekteki IP'yi sabit yönetim IP'niz veya VPN çıkış IP'nizle, `22` değerini aktif SSH portuyla değiştirin. IPv6 üzerinden yönetim yapıyorsanız buna karşılık gelen IPv6 kuralını da ekleyin.
 
 ```bash
-# Servisi durdur (Güvenlik Önlemi)
-# Ayarları yaparken bağlantımız kopmasın diye önce firewall'u kapatıyoruz.
-sudo ufw disable
-
-# Tüm kuralları sil (Temiz Başlangıç)
-sudo ufw reset
+sudo ufw allow from 203.0.113.10 to any port 22 proto tcp comment 'Yonetim SSH'
 ```
 
-> [!NOTE] > **Neden Sıfırlıyoruz?**
-> Karışık veya hatalı eski kurallar kalmasın diye. Şu an Firewall **KAPALI**, yani konfigürasyon yaparken bağlantınız kesilmez. Rahat olun. ☕
-
-### IPv6 Kontrolü
-
-Sunucunuzda IPv6 aktifse UFW'nin bunu desteklediğinden emin olun.
-`sudo nano /etc/default/ufw` dosyasını açın ve şu satırı kontrol edin:
-
-```ini
-IPV6=yes
-```
-
----
-
-## 2. Varsayılan Politikalar (Temel Yasaklar)
-
-Güvenlik duvarının mantığı şudur: **"Aksi belirtilmedikçe her şeyi yasakla."**
-
-```bash
-# Dışarıdan gelen her şeyi ENGELLE
-sudo ufw default deny incoming
-
-# Dışarıya giden her şeyi ENGELLE (Opsiyonel ama önerilir - Egress Filtering)
-# Bu, sunucu hacklenirse saldırganın dışarıya veri kaçırmasını zorlaştırır.
-sudo ufw default deny outgoing
-```
-
----
-
-## 3. Temel Hizmetlerin İzni
-
-Her şeyi yasakladık, şimdi sadece çalışan servislerimize "delik açacağız".
-
-### Admin Erişimi (SSH) - ÇOK ÖNEMLİ ⚠️
-
-Bunu yapmazsanız **sunucudan dışarıda kalırsınız!**
-
-```bash
-# Eğer standart port (22) kullanıyorsanız:
-sudo ufw limit 22/tcp comment 'SSH'
-
-# Eğer özel port (örn: 2222) kullanıyorsanız:
-sudo ufw limit 2222/tcp comment 'SSH Port'
-```
-
-### Sık Kullanılan Servisler ve Portları
-
-| Servis Adı | Port/Protokol  | Açıklama                |
-| :--------- | :------------- | :---------------------- |
-| SSH        | 22/tcp         | Güvenli Kabuk Erişimi   |
-| HTTP       | 80/tcp         | Web Sunucusu (Şifresiz) |
-| HTTPS      | 443/tcp        | Web Sunucusu (Şifreli)  |
-| DNS        | 53/udp, 53/tcp | Alan Adı Çözümlemesi    |
-| NTP        | 123/udp        | Ağ Zaman Protokolü      |
-| MySQL      | 3306/tcp       | Veritabanı Sunucusu     |
-| PostgreSQL | 5432/tcp       | Veritabanı Sunucusu     |
-| Redis      | 6379/tcp       | Bellek İçi Veri Deposu  |
-
-> [!NOTE] > **`limit` Nasıl Çalışır?**
->
-> - **30 saniye** içinde **6'dan fazla** bağlantı denemesi yapan IP geçici olarak engellenir.
-> - Brute-force saldırılarına karşı basit ama etkili bir korumadır.
-> - Daha gelişmiş koruma için **Fail2Ban** kullanılmalıdır.
-
-### Web Sunucusu (HTTP/HTTPS)
+Sunucu edge reverse proxy çalıştırıyorsa HTTP ve HTTPS'i açın.
 
 ```bash
 sudo ufw allow 80/tcp comment 'HTTP'
 sudo ufw allow 443/tcp comment 'HTTPS'
 ```
 
-### Sunucunun Dışarı Çıkması İçin (Outgoing)
+## 3. Politikayı Uygulayın ve Test Edin
 
-Eğer "Gideni Yasakla" (`default deny outgoing`) yaptıysanız, sunucunun çalışması için şunlara izin vermelisiniz:
-
-```bash
-# 1. DNS (Alan adlarını çözmek için)
-sudo ufw allow out 53 comment 'DNS'
-
-# 2. HTTP/HTTPS (Dosya indirmek, update yapmak, webhook atmak için)
-sudo ufw allow out 80/tcp comment 'HTTP Out'
-sudo ufw allow out 443/tcp comment 'HTTPS Out'
-
-# 3. NTP (Saat senkronizasyonu)
-sudo ufw allow out 123/udp comment 'NTP'
-```
-
----
-
-## 4. Aktifleştirme
-
-Kuralları girdik ama henüz aktif değil. Önce eklediğimiz kuralları kontrol edelim:
+SSH kuralı eklendikten sonra gelen trafik politikasını uygulayın. `enable` komutunu yalnızca UFW kapalıysa kullanın.
 
 ```bash
-# Henüz aktif olmadığı için 'status' çalışmaz. Eklenenleri şöyle görürüz:
 sudo ufw show added
+sudo ufw default deny incoming
 ```
 
-Her şey doğruysa, artık sistemi başlatabiliriz.
+UFW henüz aktif değilse aşağıdaki komutu çalıştırın.
 
 ```bash
-# SADECE KOMUTU ÇALIŞTIRIN AMA 'y' DEMEDEN ÖNCE OKUYUN:
-# "Command may disrupt existing ssh connections" uyarısı verecektir.
-# Eğer yukarıdaki SSH kuralını eklediyseniz korkmayın, 'y' diyip devam edin.
 sudo ufw enable
 ```
 
-> [!TIP] > **Kalıcılık:** > `enable` komutu, servisi hem hemen çalıştırır hem de sunucu yeniden başladığında **otomatik açılması** için ayarlar.
-> Yani sunucuya reboot atsanız bile kuralların tekrar aktif olması için bir şey yapmanıza gerek yoktur.
+İlk SSH oturumunu açık tutarak ikinci terminalden yeni giriş yapın. Geçici veya geniş erişim kuralı varsa yeni giriş çalıştıktan sonra `sudo ufw status numbered` ile kuralın numarasını doğrulayıp `sudo ufw delete NUMARA` ile yalnızca o kuralı kaldırın. IPv4 ve IPv6 kuralları ayrı görünebilir. Her silmeden sonra listeyi yeniden okuyun ve son kural setiyle tekrar bağlanın.
 
-**Durumu Kontrol Et:**
+Çıkış filtresini devreye almadan önce DNS, NTP, paket depoları, log hedefleri, yedekleme ve uygulama bağımlılıklarını envantere alın. Gereken çıkış kurallarını önce ekleyin. Yönetim konsolu açıkken `sudo ufw default deny outgoing` politikasını uygulayın ve bu bağımlılıkları test edin. Docker bridge trafiği için filtreyi Docker ve ağ katmanında ayrıca doğrulayın.
+
+## 4. Docker Portları
+
+Docker'ın yayımladığı portlar UFW'nin host giriş kurallarından önce yönlendirilebilir. UFW durumu tek başına container portunun kapsamını göstermez. Docker'ın paket filtreleme kurallarını etkin bırakın. Public portları yalnızca edge proxy için yayınlayın. Uygulama, veritabanı ve admin UI'ı özel ağda tutun veya host erişimi gerekiyorsa loopback'e bağlayın. [Docker Gateway](docker-gateway.md) · [Docker paket filtreleme belgeleri](https://docs.docker.com/engine/network/packet-filtering-firewalls/)
+
+## 5. Erişim Kesilirse
+
+Sağlayıcı konsolundan `sudo ufw status numbered` ve `sudo ss -lntp` çıktısını kontrol edin. Yönetim IP'niz için doğru porta dar kapsamlı izin ekleyin. Engelleyen bir kural daha önce eşleşiyorsa, kuralları inceleyip yönetim iznini o kuraldan önce `sudo ufw insert NUMARA allow from YONETIM_IP to any port SSH_PORT proto tcp` ile ekleyin. Yeni SSH oturumunu doğrulayıp geçici izinleri gözden geçirin. [SSH erişim kurtarma rehberi](../runbooks/ssh-lockout.md)
+
+## 6. Doğrulama
 
 ```bash
 sudo ufw status verbose
-```
-
----
-
-## 5. Yönetim ve İpuçları
-
-### Kural Silme
-
-En kolay yol numaralı listeyi kullanmaktır.
-
-```bash
-# 1. Numaraları gör
 sudo ufw status numbered
-
-# 2. Numaraya göre sil (Örn: 5 numaralı kuralı sil)
-sudo ufw delete 5
+sudo ss -lntup
+sudo journalctl -k --since '15 minutes ago' --no-pager | grep 'UFW '
 ```
 
-### Loglama
-
-Kimler ne deniyor görmek için logları açabilirsiniz (Diski doldurmaması için 'low' seviyesinde).
-
-```bash
-sudo ufw logging on
-sudo ufw logging low
-```
-
-_Loglar `/var/log/ufw.log` dosyasına yazılır._
-
-### Belirli Bir IP'ye İzin Verme
-
-Yönetim panelinizi tüm dünyaya açmak yerine sadece ofis IP'nize açın:
-
-```bash
-sudo ufw allow from 195.175.X.Y to any port 2222 proto tcp comment 'Ofis SSH'
-```
-
----
-
-## 6. Docker Kullananlar İçin Kritik Uyarı 🐳
-
-> [!WARNING] > **Docker Güvenlik Açığı:**
-> Docker, varsayılan olarak `iptables` kurallarını kendisi yönetir ve UFW'yi **BYPASS EDER**.
-> Yani siz UFW'den 8080 portunu kapatsanız bile, Docker o portu açtıysa dışarıdan erişilebilir!
-
-### Çözüm: `ufw-docker` Aracı
-
-Manuel `iptables` ayarı yapmak zordur. Bunun yerine şu aracı kullanın:
-
-**1. Aracı Kurun:**
-
-```bash
-sudo wget -O /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker
-sudo chmod +x /usr/local/bin/ufw-docker
-```
-
-**2. Docker Entegrasyonunu Yapın:**
-
-```bash
-# Bu komut gerekli iptables kurallarını ekler
-ufw-docker install
-```
-
-**3. Docker Portlarını Açma (Artık UFW Üzerinden):**
-Bir container'a dışarıdan erişim vermek isterseniz artık:
-
-```bash
-# Sadece belirli bir container'a izin ver
-ufw-docker allow my-web-container 80
-```
-
-Şeklinde kullanmalısınız. Detaylar için [ufw-docker GitHub](https://github.com/chaifeng/ufw-docker) sayfasına bakın.
-
----
-
-## 7. Acil Durum Senaryoları 🚨
-
-### Sunucuya Erişimi Kaybettim!
-
-1.  **Hetzner/AWS Konsol:** Hosting panelinizden **VNC/Console** ile bağlanın.
-2.  **Firewall'u Kapatın:**
-    ```bash
-    sudo ufw disable
-    ```
-3.  **Hala Girilemiyor mu?** Sunucuyu "Rescue Mode"a alın.
-
-### Tüm Kuralları Anlık Kaldırmak (Panik Butonu)
-
-```bash
-sudo ufw reset && sudo ufw disable
-```
-
-### Belirli Bir IP'yi Acil Banlamak
-
-```bash
-sudo ufw deny from 185.143.223.0/24 comment 'Spam IP Bloğu'
-```
-
----
-
-## 8. Kurulum Kontrol Listesi ✅
-
-- [ ] UFW kuruldu (`sudo apt install ufw`)
-- [ ] Varsayılan politikalar ayarlandı (`default deny incoming`)
-- [ ] SSH portu açıldı (Yoksa dışarıda kalırsın!)
-- [ ] Web portları açıldı (80, 443)
-- [ ] Outgoing kuralları eklendi (DNS, HTTP, NTP)
-- [ ] Kontrol edildi: `sudo ufw show added`
-- [ ] Aktif edildi: `sudo ufw enable`
-- [ ] Docker kullanılıyorsa `ufw-docker` kuruldu
+`Status: active` ve `deny (incoming)` politikasını, yönetim IP'nizden SSH girişini ve beklenen dinleyicileri doğrulayın. Engellenen trafik görünürlüğü gerekiyorsa `sudo ufw logging low` kullanın. Docker için port eşlemelerini `docker ps` ile ve erişimi yetkili bir istemciden ayrıca doğrulayın.

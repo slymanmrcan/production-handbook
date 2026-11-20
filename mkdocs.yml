@@ -65,7 +65,6 @@ nav:
   - Kurulum Akışı:
       - Yol Haritası (Day 0 -> Day 2): getting-started/roadmap.md
       - Bulut Hazırlığı:
-          - Bulut Temelleri & Kıyaslama: cloud/aws/concepts.md
           - Cloud Guardrails:
               - Genel: cloud/shared/index.md
               - IAM Guardrails: cloud/shared/iam-guardrails.md
@@ -77,6 +76,7 @@ nav:
               - Network (VCN): cloud/oracle/network.md
               - Block Volume (Storage): cloud/oracle/storage.md
           - AWS:
+              - AWS Temelleri: cloud/aws/concepts.md
               - AWS CLI: cloud/aws/cli.md
               - AWS EC2: cloud/aws/ec2.md
               - AWS Ağ & Güvenlik: cloud/aws/networking.md
@@ -99,7 +99,6 @@ nav:
           - Paket Yönetimi: how-to/package-management.md
           - Swap Bellek: how-to/swap.md
           - Ağ / Port Kontrolleri: how-to/port-checks.md
-      - İlk Kurulum Doğrulama: checklists/server-first-setup.md
 
   # === 2. ALTYAPI & STACK (BLUEPRINTS & ŞABLONLAR) ===
   - Altyapı & Stack:
@@ -138,7 +137,7 @@ nav:
 
   # === 3. GÜVENLİK (HARDENING) ===
   - Güvenlik:
-      - Genel (15 Katmanlı Mimari): security/index.md
+      - Genel Bakış: security/index.md
       - Temel Güvenlik (Zorunlu Baseline):
           - SSH Hardening: security/ssh.md
           - Firewall (UFW): security/firewall.md
@@ -148,6 +147,11 @@ nav:
           - Docker Gateway Mimarisi: security/docker-gateway.md
           - Secret Yönetimi (Şifreler): security/secrets.md
           - Servis Temizliği: security/services.md
+      - İzleme ve Tespit:
+          - Güvenlik İzleme ve Alarmlar: security/monitoring.md
+          - Dosya Bütünlüğü (AIDE): security/fim.md
+          - Malware & Rootkit: security/malware.md
+          - Merkezi Güvenlik Araçları: security/advanced-tools.md
       - İleri Seviye Güvenlik (Derin Savunma):
           - Google Auth (2FA): security/2fa.md
           - SSHGuard: security/sshguard.md
@@ -156,17 +160,15 @@ nav:
           - Kernel Sözlüğü (Detay): security/sysctl-glossary.md
           - Derleyici Kısıtlama: security/compilers.md
           - Kaynak Kısıtlama (CPU/RAM): security/resource-limits.md
-          - İzleme ve Anomali (Alerts): security/monitoring.md
-          - Dosya Bütünlüğü (AIDE): security/fim.md
           - Tmp Güvenliği (Noexec): security/tmp-hardening.md
           - Servis Sözlüğü: security/service-glossary.md
-          - Malware & Rootkit: security/malware.md
-          - Honeypot & Tarpit: security/tarpit.md
-          - Cowrie Tam Rehber: security/cowrie-analysis.md
           - Bastion Host (Jump Box): security/bastion.md
+      - Denetim ve Uyumluluk:
           - Uyumluluk (OpenSCAP): security/compliance.md
-          - İleri Seviye (SIEM/EDR): security/advanced-tools.md
           - Lynis: security/lynis.md
+      - Honeypot ve Tarpit:
+          - Honeypot & Tarpit: security/tarpit.md
+          - Cowrie Log Analizi: security/cowrie-analysis.md
 
   # === 4. OPERASYON & MÜDAHALE (DAY 2) ===
   - Operasyon & Müdahale:
@@ -183,6 +185,7 @@ nav:
           - Genel: runbooks/index.md
           - Olay & Deploy:
               - Olay Yönetimi: runbooks/incident-response.md
+              - Şüpheli Sunucu ve Yetkisiz Erişim: runbooks/suspected-compromise.md
               - Servis Kesintisi: runbooks/service-down.md
               - Deploy Geri Alma: runbooks/deploy-rollback.md
               - Config Deploy Hatası: runbooks/config-deploy-fail.md

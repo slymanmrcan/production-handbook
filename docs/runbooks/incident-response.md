@@ -2,6 +2,9 @@
 
 Bu runbook production incident aninda ilk 15 dakikada ne yapilacagini standardize eder. Amaç sorunu hemen cozmek degil, etkiyi kontrol altina alip dogru veriyi toplamaktir.
 
+!!! warning "Yetkisiz erişim şüphesi"
+    Beklenmeyen başarılı giriş, yeni yetki, tanımsız süreç veya şüpheli ağ trafiği varsa [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md) rehberini açın. Kanıt toplama ve izolasyon kararını restart veya rollback öncesinde verin.
+
 ## 1. Etki Tespiti
 
 Incident'i sozel olarak degil, olculebilir ifadelerle tanimlayin:

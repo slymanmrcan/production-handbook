@@ -42,7 +42,7 @@ Sistem sağlığı ve veri güvenliği:
 
 - **[Monitoring](monitoring.md)** - Sistem izleme araçları
 - **[Monitoring Stack](monitoring-stack.md)** - Prometheus + Grafana kurulumu
-- **[Merkezi Loglama](centralized-logging.md)** - Loki/Promtail ile log toplama
+- **[Merkezi Loglama](centralized-logging.md)** - Loki ve Grafana Alloy ile log toplama
 - **[Logrotate](logrotate.md)** - Log dosyası rotasyonu
 - **[Yedekleme (Backup)](backups.md)** - Yedekleme stratejileri
 - **[DR Drill](disaster-recovery-drill.md)** - RPO/RTO, restore testi, tatbikat akışı

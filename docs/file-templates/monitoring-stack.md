@@ -31,10 +31,7 @@ monitoring/
 │   │       ├── dashboard.yml
 │   │       └── node-exporter.json
 │   └── data/
-├── alertmanager/
-│   ├── config.yml
-│   └── data/
-└── loki/
+└── alertmanager/
     ├── config.yml
     └── data/
 ```
@@ -144,33 +141,6 @@ services:
     volumes:
       - ./alertmanager/config.yml:/etc/alertmanager/config.yml:ro
       - ./alertmanager/data:/alertmanager
-    networks:
-      - monitoring
-
-  # Loki - Log toplama (opsiyonel)
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    restart: always
-    ports:
-      - "127.0.0.1:3100:3100"
-    volumes:
-      - ./loki/config.yml:/etc/loki/local-config.yaml:ro
-      - ./loki/data:/loki
-    command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - monitoring
-
-  # Promtail - Log shipper (opsiyonel)
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    restart: always
-    volumes:
-      - /var/log:/var/log:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./loki/promtail-config.yml:/etc/promtail/config.yml:ro
-    command: -config.file=/etc/promtail/config.yml
     networks:
       - monitoring
 
@@ -435,12 +405,9 @@ datasources:
     isDefault: true
     editable: false
 
-  - name: Loki
-    type: loki
-    access: proxy
-    url: http://loki:3100
-    editable: false
 ```
+
+Loki datasource ve Grafana Alloy kurulumu için [Merkezi Loglama](../how-to/centralized-logging.md) rehberini kullanın.
 
 ---
 
@@ -448,7 +415,7 @@ datasources:
 
 ```bash
 # Klasörleri oluştur
-mkdir -p prometheus/data grafana/data alertmanager/data loki/data
+mkdir -p prometheus/data grafana/data alertmanager/data
 
 # İzinleri ayarla
 sudo chown -R 65534:65534 prometheus/data
@@ -482,7 +449,7 @@ docker compose logs -f
 
 ```bash
 docker compose ps
-ss -ltnp | rg ':(3000|8080|9090|9093|9100|3100) '
+ss -ltnp | rg ':(3000|8080|9090|9093|9100) '
 curl -fsS http://127.0.0.1:9090/-/ready
 curl -fsS http://127.0.0.1:9093/-/ready
 curl -fsS http://127.0.0.1:3000/api/health

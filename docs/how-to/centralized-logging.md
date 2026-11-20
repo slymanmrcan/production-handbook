@@ -1,38 +1,10 @@
-# Merkezi Loglama (Loki + Promtail)
+# Merkezi Loglama (Loki + Grafana Alloy)
 
-Sadece local log tutmak troubleshooting degildir. Gercek operasyon icin:
+Grafana Alloy, journal ve seçili dosya loglarını Loki'ye gönderir. Operatör Grafana üzerinden SSH, Nginx ve uygulama olaylarını host adı ve zaman aralığıyla sorgular. Güvenlik incelemesinde kayıtları kaynak sunucudan ayrı, erişimi sınırlı bir hedefte saklayın.
 
-- host loglari,
-- Nginx loglari,
-- uygulama loglari,
-- deploy ve hata anlari
+## 1. Journal Saklama
 
-tek yerden sorgulanabilir olmali.
-
-Bu rehber, hafif bir stack olan **Loki + Promtail + Grafana** ile merkezi loglamayi kurar.
-
-## 1. Hedef Mimari
-
-Akis:
-
-1. `journald` host loglarini tutar
-2. Promtail hosttan ve dosya loglarindan toplar
-3. Loki loglari saklar
-4. Grafana ile sorgu ve dashboard yapilir
-
-Bu stack SIEM degildir. Ama production troubleshooting icin cok guclu bir baseline'dir.
-
-## 2. Local Log Hijyeni
-
-Merkezi loglama kurmadan once host uzerindeki retention kontrol altinda olmali:
-
-```bash
-sudo mkdir -p /var/log/journal
-sudo systemctl restart systemd-journald
-sudo journalctl --disk-usage
-```
-
-`/etc/systemd/journald.conf` icin temel ayarlar:
+`/etc/systemd/journald.conf.d/60-retention.conf` dosyasına yazın. Dizin yoksa önce oluşturun.
 
 ```ini
 [Journal]
@@ -42,50 +14,51 @@ MaxRetentionSec=7day
 Compress=yes
 ```
 
-Uygula:
-
 ```bash
 sudo systemctl restart systemd-journald
+sudo journalctl --flush
 sudo journalctl --disk-usage
+sudo journalctl --list-boots
 ```
 
-## 3. Dizin Yapisi
+Yerel saklamayı disk kapasitesine göre ayarlayın. Merkezi hedefte ayrı bir retention belirleyin. Olay kapsamındaki logları genel retention süresinden bağımsız koruyun.
 
-```bash
-sudo mkdir -p /opt/logging
-sudo mkdir -p /opt/logging/loki
-sudo mkdir -p /opt/logging/promtail
-cd /opt/logging
-```
+## 2. Loki
 
-## 4. Docker Compose ile Loki ve Promtail Kur
+Bu tek düğümlü örnekte Loki `/opt/logging` altında çalışır. HTTP portu yalnızca host üzerinden loopback'e yayınlanır. Aynı Docker ağına katılan servisler de Loki'ye erişebilir. Ağa yalnızca güvendiğiniz servisleri bağlayın. [Loki kimlik doğrulama belgeleri](https://grafana.com/docs/loki/latest/operations/authentication/)
 
 `/opt/logging/docker-compose.yml`:
 
 ```yaml
 services:
   loki:
-    image: grafana/loki:2.9.8
-    container_name: loki
+    image: grafana/loki:3.7.8
+    user: "10001:10001"
     restart: unless-stopped
     ports:
       - "127.0.0.1:3100:3100"
-    command: -config.file=/etc/loki/config.yml
+    command: ["-config.file=/etc/loki/config.yml"]
     volumes:
       - ./loki/config.yml:/etc/loki/config.yml:ro
       - loki-data:/loki
-
-  promtail:
-    image: grafana/promtail:2.9.8
-    container_name: promtail
-    restart: unless-stopped
-    command: -config.file=/etc/promtail/config.yml
-    volumes:
-      - ./promtail/config.yml:/etc/promtail/config.yml:ro
-      - /var/log:/var/log:ro
-      - /var/log/journal:/var/log/journal:ro
-      - /etc/machine-id:/etc/machine-id:ro
-      - /run/log/journal:/run/log/journal:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cpus: 1.0
+    mem_limit: 1g
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "/usr/bin/loki", "-health", "-health.url=http://127.0.0.1:3100/ready"]
+      start_period: 60s
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   loki-data:
@@ -98,8 +71,10 @@ auth_enabled: false
 
 server:
   http_listen_port: 3100
+  grpc_listen_address: 127.0.0.1
 
 common:
+  instance_addr: 127.0.0.1
   path_prefix: /loki
   storage:
     filesystem:
@@ -112,7 +87,7 @@ common:
 
 schema_config:
   configs:
-    - from: 2024-01-01
+    - from: "2024-01-01"
       store: tsdb
       object_store: filesystem
       schema: v13
@@ -125,123 +100,89 @@ limits_config:
 
 compactor:
   working_directory: /loki/compactor
-  compaction_interval: 10m
   retention_enabled: true
   delete_request_store: filesystem
 ```
 
-`/opt/logging/promtail/config.yml`:
-
-```yaml
-server:
-  http_listen_port: 9080
-
-positions:
-  filename: /tmp/positions.yaml
-
-clients:
-  - url: http://loki:3100/loki/api/v1/push
-
-scrape_configs:
-  - job_name: journal
-    journal:
-      path: /var/log/journal
-      labels:
-        job: systemd-journal
-        host: server-01
-    relabel_configs:
-      - source_labels: ['__journal__systemd_unit']
-        target_label: unit
-
-  - job_name: nginx
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: nginx
-          host: server-01
-          __path__: /var/log/nginx/*.log
-
-  - job_name: app
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: app
-          host: server-01
-          __path__: /var/log/app/*.log
-```
-
-Calistir:
-
 ```bash
 cd /opt/logging
-docker compose up -d
-docker compose ps
-```
-
-## 5. Grafana Baglantisi
-
-Grafana ayakta ise Loki datasource ekleyin:
-
-- URL: `http://loki:3100` veya ayni hostta `http://127.0.0.1:3100`
-- Access: Grafana'nin calisma modeline gore `proxy`
-
-Ilk sorgular:
-
-- `{job="systemd-journal"}`
-- `{job="nginx"}`
-- `{job="app"}`
-- `{job="systemd-journal", unit="ssh.service"}`
-
-## 6. Nginx ve Uygulama Log Standardi
-
-Merkezi loglama kurulu olsa bile local tarafta asgari standardi koruyun:
-
-- Nginx `access.log` ve `error.log` aktif olmali
-- Uygulama loglari tek bir dizinde toplanmali: `/var/log/app/*.log`
-- Docker loglari sonsuz buyumemeli
-
-Docker icin:
-
-```yaml
-logging:
-  driver: "json-file"
-  options:
-    max-size: "10m"
-    max-file: "3"
-```
-
-## 7. Test Log Gonder
-
-```bash
-logger "loki smoke test from $(hostname)"
-journalctl -n 5 --no-pager
-```
-
-Loki tarafini kontrol et:
-
-```bash
+docker compose config --quiet
+docker compose run --rm --no-deps loki -config.file=/etc/loki/config.yml -verify-config=true
+docker compose up -d loki
+docker compose ps loki
 curl -fsS http://127.0.0.1:3100/ready
-curl -fsS http://127.0.0.1:9080/ready
-curl -G -s http://127.0.0.1:3100/loki/api/v1/label/job/values
 ```
 
-## 8. Verify Matrix
+Mevcut Loki kurulumunu yükseltiyorsanız önce yapılandırma ve volume yedeğini alın. Tarihsel `schema_config` girişlerini ve mevcut volume eşlemesini koruyun. Mevcut sürümden yükseltme adımlarını test ortamında uygulayıp geçmiş logları sorgulayın. [Loki yükseltme belgeleri](https://grafana.com/docs/loki/latest/setup/upgrade/)
 
-| Kontrol | Komut | Beklenen Sonuc |
-| :------ | :---- | :------------- |
-| Journald persistence | `journalctl --disk-usage` | Loglar disk uzerinde saklaniyor olmali. |
-| Loki health | `curl -fsS http://127.0.0.1:3100/ready` | `ready` dönmeli. |
-| Promtail health | `curl -fsS http://127.0.0.1:9080/ready` | `ready` dönmeli. |
-| Job label'lari | `curl -G -s http://127.0.0.1:3100/loki/api/v1/label/job/values` | `systemd-journal`, `nginx`, `app` gibi label'lar görünmeli. |
-| Test logu | `logger "central logging test"` | Log, Grafana veya Loki query ile bulunabilmeli. |
+## 3. Grafana Alloy
 
-## 9. No-Go Durumlari
+[Grafana'nın imzalı APT deposu üzerinden Alloy'u](https://grafana.com/docs/alloy/latest/set-up/install/linux/) kaynak host'a systemd servisi olarak kurun. `id alloy` ile servis hesabının journal okuma gruplarını doğrulayın. Paket bu grupları eklememişse `sudo usermod -aG adm,systemd-journal alloy` ile ekleyin. Nginx ve uygulama logları için yalnızca ilgili dosya ve dizinlere okuma erişimi verin. [Alloy izin belgeleri](https://grafana.com/docs/grafana-cloud/send-data/alloy/access_permissions/linux/)
 
-Su durumlarda bunu production kabul etmeyin:
+`/etc/alloy/config.alloy` dosyasına aşağıdaki bileşenleri ekleyin. Örnek URL, Loki'nin aynı makinede olduğu kurulum içindir. Sunucu dışına log göndermek için hedefte yetkilendirme yapan HTTPS reverse proxy veya özel ağ üzerinden korumalı bir log ucu kullanın. Gerekli token'ı dosyadan okutun. [Alloy hedef ve kimlik doğrulama ayarları](https://grafana.com/docs/alloy/latest/reference/components/loki/loki.write/)
 
-- `journald` persistent degilse
-- Nginx/app loglari localde bile standardize edilmemisse
-- Loki tek hostta calisiyor ama retention tanimi yoksa
-- Loglar var ama alarm/operasyon ekibi bu loglari sorgulamayi bilmiyorsa
+```alloy
+loki.relabel "journal" {
+  forward_to = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+}
+
+loki.source.journal "host" {
+  labels        = { job = "systemd-journal", host = constants.hostname }
+  max_age       = "24h"
+  relabel_rules = loki.relabel.journal.rules
+  forward_to    = [loki.write.logs.receiver]
+}
+
+loki.source.file "web" {
+  targets = [
+    { __path__ = "/var/log/nginx/*.log", job = "nginx", host = constants.hostname },
+    { __path__ = "/var/log/app/*.log", job = "app", host = constants.hostname },
+  ]
+  forward_to = [loki.write.logs.receiver]
+
+  file_match {
+    enabled = true
+  }
+}
+
+loki.write "logs" {
+  endpoint {
+    url = "http://127.0.0.1:3100/loki/api/v1/push"
+  }
+}
+```
+
+Uygulamanız systemd üzerinden journal'a yazıyorsa `loki.source.journal` bu kayıtları zaten toplar. Aynı kayıtları ayrıca dosyadan göndermeyin. Dosya logları yoksa veya kullanılmıyorsa ilgili `targets` satırını çıkarın.
+
+```bash
+sudo -u alloy alloy validate /etc/alloy/config.alloy
+sudo systemctl enable alloy
+sudo systemctl restart alloy
+sudo journalctl -u alloy -n 50 --no-pager
+curl -fsS http://127.0.0.1:12345/-/ready
+```
+
+### Promtail'den geçiş
+
+Promtail 2 Mart 2026'da kullanım ömrünü tamamladı. Mevcut config ve position dosyalarını saklayın. [Grafana'nın geçiş rehberi](https://grafana.com/docs/alloy/latest/set-up/migrate/from-promtail/) ile mevcut config'i dönüştürün. Geçiş saatini kaydedin, aynı kaynağı iki toplayıcının eş zamanlı göndermesini önleyin ve kesim öncesi/sonrası logların geldiğini doğrulayın. Eski loki volume'ünü koruyun.
+
+## 4. Grafana ve Doğrulama
+
+Grafana host üzerinde çalışıyorsa Loki datasource URL'si `http://127.0.0.1:3100` olabilir. Grafana bir container ise Loki ile güvenilir bir Docker ağını paylaşmalı veya yetkili HTTPS log hedefine erişmelidir. Aynı ağdaysa `http://loki:3100` kullanılabilir.
+
+```bash
+logger -t handbook-log-test "loki smoke test from $(hostname)"
+journalctl -t handbook-log-test -n 5 --no-pager
+curl -fsS http://127.0.0.1:3100/ready
+curl -fsS http://127.0.0.1:12345/-/ready
+sudo ss -lntp '( sport = :3100 or sport = :12345 )'
+```
+
+Grafana Explore'da `{job="systemd-journal"} |= "loki smoke test"` sorgusuyla test kaydının doğru host'tan ulaştığını doğrulayın. Ardından `{job="systemd-journal", unit="ssh.service"}` ve varsa `{job="nginx"}` ile gerçek kaynakları doğrulayın. Test kaydı görünmüyorsa Alloy journal'ında izin hatalarına ve Loki gönderim hatalarına bakın.
+
+Loki'nin yalnızca beklenen loopback adresinden yayınlandığını Docker port listesinde de doğrulayın. Üretim için hedefin kaynak host'tan bağımsızlığını, saklama süresini ve erişim yetkilerini ayrıca kontrol edin.

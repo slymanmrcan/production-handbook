@@ -2,6 +2,9 @@
 
 Sunucuya SSH ile erişemediğinizde uygulayacağınız kurtarma (recovery) protokolü.
 
+!!! warning "Yetkisiz erişim şüphesi"
+    SSH erişimi beklenmeyen bir değişiklikle kesildiyse önce [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md) rehberindeki kanıt koruma adımlarını kullanın.
+
 > [!WARNING]
 > Bu adımlar sunucu sağlayıcınızın yönetim paneline erişim gerektirir.
 
@@ -22,7 +25,7 @@ Sunucuya SSH ile erişemediğinizde uygulayacağınız kurtarma (recovery) proto
 5.  **Parola:** Kurulumda belirlediğiniz root parolası.
 
 > [!TIP]
-> Root parolası kapalıysa (`PermitRootLogin no`), bu yöntem işe yaramayabilir. Eğer sudo kullanıcınızın parolasını biliyorsanız onunla girin.
+> Konsol girişi yerel kullanıcı kimlik doğrulamasını kullanır. Önceden doğrulanmış bir yönetim hesabıyla giriş yapın.
 
 ## Yöntem 2: Rescue Mode (Kurtarma Modu)
 
@@ -63,33 +66,33 @@ Artık kendi sunucunuzun içindesiniz!
 
 ## Çözüm Adımları
 
-İçeri girdikten sonra (Console veya Rescue Chroot):
+Çalışan sistemin konsolunda aşağıdaki kontrolleri uygulayın. Rescue chroot kullanıyorsanız disk üzerindeki yapılandırmayı düzeltip sözdizimini doğrulayın. Servis ve firewall durumunu normal açılış sonrasında sağlayıcı konsolundan kontrol edin.
 
-### A. Firewall'u Kapatmak (Erişimi açmak için)
+### A. Firewall ve SSH Portunu Kontrol Etmek
 
 ```bash
-ufw disable
-# veya
-iptables -F
+sudo ufw status numbered
+sudo ss -lntp
 ```
+
+Engel firewall kuralından kaynaklanıyorsa [UFW erişim kurtarma adımlarını](../security/firewall.md) uygulayın. Bulut firewall kurallarında yönetim IP'nizin aynı porta erişimini doğrulayın.
 
 ### B. SSH Ayarlarını Düzeltmek
 
-Yanlış bir ayar yaptıysanız dosyayı düzenleyin:
+Son SSH değişikliğini güvenilir sürümle karşılaştırın. Etkin config ve drop-in dosyalarındaki sorunlu değişikliği geri alın. Anahtar veya izin sorunlarını [SSH Hardening](../security/ssh.md) adımlarıyla düzeltin. Yapılandırmayı çalışan sistemde yeniden yüklemeden önce doğrulayın.
 
 ```bash
-nano /etc/ssh/sshd_config
-# PermitRootLogin yes (Geçici olarak açın)
-# PasswordAuthentication yes (Geçici olarak açın)
+sudo sshd -t && sudo systemctl reload ssh.service
 ```
+
+Port değiştiyse önce `ssh.socket` kullanımını [SSH Hardening](../security/ssh.md) rehberine göre kontrol edin. Yeni terminalden anahtarla giriş yaparak kurtarma işlemini doğrulayın.
 
 ### C. Logları Kontrol Etmek
 
 Neden giremediğinizi görmek için:
 
 ```bash
-journalctl -u ssh -e
-tail -f /var/log/auth.log
+sudo journalctl --utc -u ssh.service --since '30 minutes ago' --no-pager
 ```
 
 ## Çıkış ve Reboot

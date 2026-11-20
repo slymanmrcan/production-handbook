@@ -2,6 +2,9 @@
 
 Bu bölüm tek bir ürün ya da tek bir ayar seti değil. Amaç, güvenliği bir operasyon modeli olarak kurmak: önce erişimi kapat, sonra host'u sertleştir, sonra değişikliği ve anomaliyi ölç, en son compliance ve fleet tooling katmanına geç.
 
+!!! warning "Sunucuda yetkisiz erişimden şüpheleniyorsanız"
+    İlk kontroller, kanıt koruma ve izolasyon için [Şüpheli Sunucu ve Yetkisiz Erişim](../runbooks/suspected-compromise.md) rehberinden başlayın.
+
 ## Bu Sayfa Ne Zaman Kullanılır
 
 - Yeni bir host production'a çıkmadan önce
@@ -59,10 +62,10 @@ Güvenliği şu sırayla düşün:
 | :---- | :-------- | :---- |
 | Tek host'un dışarı açılması gerekiyor | `ssh.md`, `firewall.md`, `2fa.md` | Erişim yüzeyi önce kapanmalı |
 | Brute-force veya bot trafiği artıyor | `fail2ban.md` veya `crowdsec.md` | Otomatik engelleme gerekir |
-| Host'ta beklenmeyen değişiklik var | `fim.md`, `lynis.md` | Drift ve ihlal sinyali gerekir |
+| Beklenmeyen giriş, süreç, bağlantı veya yetki var | [Şüpheli Sunucu](../runbooks/suspected-compromise.md) | Giriş kayıtlarını, süreçleri ve ağ trafiğini aynı zaman aralığında inceleyin |
+| Planlı değişiklik sonrası dosya farkı var | [Dosya Bütünlüğü](fim.md) | Farkı bilinen referans ve değişiklik kaydıyla karşılaştırın |
 | Compliance raporu isteniyor | `compliance.md` | Denetçi odaklı çıktı gerekir |
 | Çok sayıda sunucu var | `advanced-tools.md` | Merkezi görünürlük gerekir |
-| Bir saldırı oldu | [Runbooks](../runbooks/index.md) | Güvenlik sayfası değil müdahale sayfası gerekir |
 
 ## Araç Seçimi
 

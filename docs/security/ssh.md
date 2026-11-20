@@ -17,28 +17,21 @@ sudo ss -lntp | grep sshd
 
 ## Adım 1: Firewall Sigortası (UFW)
 
-SSH ayarını değiştirmeden önce, Firewall'da hem mevcut kapıyı hem yeni kapıyı açmalıyız. Bu "sigorta" işlemidir.
+SSH ayarını değiştirmeden önce, mevcut ve yeni SSH portuna yönetim kaynağınızdan erişimi doğrulayın. Örnekteki IP'yi sabit yönetim veya VPN çıkış adresinizle değiştirin. Mevcut SSH oturumunu ve sağlayıcı konsolunu açık tutun.
 
 1.  **Mevcut portu garantiye al (Sigorta):**
 
     ```bash
-    sudo ufw allow 22/tcp
+    sudo ufw allow from 203.0.113.10 to any port 22 proto tcp
     ```
 
 2.  **Yeni hedef portu aç:**
 
     ```bash
-    sudo ufw allow 2222/tcp
+    sudo ufw allow from 203.0.113.10 to any port 2222 proto tcp
     ```
 
-3.  **Temel kurallar ve aktifleştirme:**
-
-    ```bash
-    sudo ufw default deny incoming
-    sudo ufw default allow outgoing
-    sudo ufw enable
-    # "Yes" deyin. Bağlantınız kopmaz çünkü 22'ye izin verdik.
-    ```
+3.  **Temel kurallar ve aktifleştirme:** UFW kapalıysa [firewall rehberindeki](firewall.md) adımlarla mevcut kuralları doğrulayıp etkinleştirin.
 
 4.  **Kontrol:**
     ```bash
@@ -47,7 +40,7 @@ SSH ayarını değiştirmeden önce, Firewall'da hem mevcut kapıyı hem yeni ka
     ```
 
 > [!WARNING] > **AWS, Oracle ve Cloud Kullanıcıları:**
-> Sadece UFW yetmez! Kullandığınız panelden (AWS Security Groups, Oracle Security List, Hetzner Firewall vb.) **2222** portuna izin vermelisiniz. Yoksa "bahçe kapısı" kapalı olduğu için eve giremezsiniz.
+> Sağlayıcı firewall'ında da yönetim IP'nize yeni SSH portu için izin verin.
 
 ## Adım 2: Konfigürasyon Değişikliği
 
@@ -79,13 +72,13 @@ PasswordAuthentication no
 
 Kaydet ve çık (`Ctrl+O`, `Enter`, `Ctrl+X`).
 
-## Adım 3: Ubuntu 22.04+ Socket Sorunu (En Garanti Yöntem)
+## Adım 3: SSH Socket Activation
 
-Ubuntu 22.04 ve sonrasında SSH, **"Socket Activation"** ile çalışır. Önce durumunuzu kontrol edin:
+Ubuntu 22.10 ile OpenSSH varsayılan olarak socket activation kullanmaya başladı. Sürüm ve imaja göre mekanizma değişebildiği için mevcut durumu kontrol edin. Ubuntu 24.04, port ayarını SSH yapılandırmasından bir systemd generator ile okur. [Ubuntu OpenSSH socket activation notları](https://discourse.ubuntu.com/t/sshd-now-uses-socket-based-activation-ubuntu-22-10-and-later/30189/1)
 
 ```bash
 # Socket modunda mısınız kontrol edin
-if systemctl is-enabled ssh.socket 2>/dev/null | grep -q "enabled"; then
+if systemctl is-active --quiet ssh.socket; then
     echo "⚠️  Socket Activation aktif - Aşağıdaki adımları uygulayın"
 else
     echo "✅ Klasik mod - Bu adımı atlayıp Adım 4'e geçebilirsiniz"
@@ -94,7 +87,7 @@ fi
 
 **Eğer Socket Aktifse:**
 
-Socket ayarlarını düzenlemek için şu komutu girin:
+`systemctl cat ssh.socket` ile mevcut port override'larını kontrol edin. Ubuntu 24.04'te çakışan bir override yoksa `sshd_config` değişikliğini Adım 3'ün sonundaki komutlarla uygulayın. Portu socket drop-in dosyasından yöneten kurulumlarda mevcut ayarı yedekleyin ve aşağıdaki düzenleyiciyi kullanın:
 
 ```bash
 sudo systemctl edit ssh.socket
@@ -113,8 +106,7 @@ _(Not: İlk satırdaki boş `ListenStream=` varsayılan 22 portunu siler, ikinci
 Değişikliği uygulayıp servisi yeniden başlatın:
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl restart ssh.socket
+sudo sshd -t && sudo systemctl daemon-reload && sudo systemctl restart ssh.socket
 ```
 
 ## Adım 4: Test ve Restart
@@ -129,13 +121,13 @@ Hatayı restart atmadan önce yakalamalıyız.
 
     _(Çıktı yoksa her şey yolunda demektir. Hata varsa düzeltin!)_
 
-2.  **Servisi yeniden başlat:**
+2.  **Servis modunda yapılandırmayı yükle:**
 
     ```bash
-    sudo systemctl restart ssh
+    sudo sshd -t && sudo systemctl reload ssh.service
     ```
 
-    _(Bağlantınız hala kopmadı, korkmayın.)_
+    Socket modunda dinleyiciyi Adım 3 yönetir. Mevcut oturumu test tamamlanana kadar açık tutun.
 
 3.  **Dinlenen Portu Doğrula:**
     ```bash
@@ -165,14 +157,14 @@ _Şifre veya key soruyorsa (veya "Permission denied" diyorsa) port çalışıyor
 
 ## Adım 7: Temizlik (Eski Kapıyı Kapat)
 
-Başarıyla girdiyseniz artık 22'ye ihtiyacınız yok.
+Yeni porttan başarıyla giriş yaptıktan sonra eski SSH portuna izin veren kuralları `sudo ufw status numbered` ile belirleyin. Örnekte eklenen yönetim kuralını şöyle kaldırın:
 
 ```bash
-sudo ufw delete allow 22/tcp
-sudo ufw reload
+sudo ufw delete allow from 203.0.113.10 to any port 22 proto tcp
+sudo ufw status numbered
 ```
 
-Artık sadece 2222 açık! 🔒
+Eski porta verilen diğer SSH izinlerini de doğrulayıp kaldırın. Sağlayıcı firewall'ındaki eski SSH kuralını gözden geçirin ve yeni porttan tekrar giriş yapın.
 
 ## Adım 8: İleri Düzey Hardening (Lynis Önerileri)
 
@@ -271,22 +263,16 @@ port = 2222
 Eğer kendinizi kilitlediyseniz ve **konsol erişiminiz** (VNC/KVM) varsa:
 
 1.  Cloud panelinden VNC/Serial Console açın.
-2.  Şu komutları sırasıyla çalıştırın:
+2.  Önceki dinleme portuna [yönetim IP'niz için izin verin](firewall.md). `sshd_config` veya ilgili drop-in dosyasını bilinen çalışan sürüme döndürün. Socket drop-in'i bu işlemde değiştiyse aynı dosyanın yedeğini geri yükleyin veya bu işlem için yeni eklediğiniz özel drop-in'i kaldırın.
 
 ```bash
-# 1. Eski portu aç
-sudo ufw allow 22/tcp
-
-# 2. Socket ayarını sıfırla (İçeriği silip kaydet)
-sudo systemctl edit ssh.socket --force
-# (Açılan editörde her şeyi silin, boş kaydedin)
-
-# 3. Config'i düzelt
-sudo sed -i 's/^Port 2222/Port 22/' /etc/ssh/sshd_config
-
-# 4. Servisleri resetle
-sudo systemctl restart ssh.socket ssh
+# Socket modunda:
+sudo sshd -t && sudo systemctl daemon-reload && sudo systemctl restart ssh.socket
+# Servis modunda:
+sudo sshd -t && sudo systemctl reload ssh.service
 ```
+
+Modele uygun komutu seçin. `sudo ss -lntp` ile portu doğrulayın ve ayrı terminalden anahtarla tekrar bağlanın.
 
 ---
 

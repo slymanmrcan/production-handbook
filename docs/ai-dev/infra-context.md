@@ -28,7 +28,7 @@ flowchart LR
 AI kod veya compose üretirken şu 4 sınır kuralını asla ihlal etmemelidir:
 
 1. **Sadece Edge Public Olur:** Uygulama, veritabanı, cache veya admin arayüzleri `0.0.0.0` üzerinden dışarı açılmaz.
-2. **Docker UFW Bypass Kuralı:** `ports: ["3000:3000"]` yazmak UFW'yi deler. Host'a bind gerekiyorsa mutlaka `127.0.0.1:<host_port>:<container_port>`, gerekmiyorsa sadece `expose` + shared Docker network kullanılır. (Detay: [Docker Gateway Mimarisi](../security/docker-gateway.md))
+2. **Docker UFW Bypass Kuralı:** `ports: ["3000:3000"]` eşlemesi UFW'nin host giriş kurallarından önce yönlendirilebilir. Özel Docker ağı kullanın. Host erişimi gerekiyorsa Docker Engine 28.0.0 veya üzerinde `127.0.0.1:<host_port>:<container_port>` bağını kullanın. Docker'ın paket filtreleme kurallarını etkin bırakın. [Docker Gateway Mimarisi](../security/docker-gateway.md)
 3. **Veri Katmanı İnternetsizdir:** Veritabanı ve Redis konteynerleri `internal: true` tanımlı backend ağında yaşar; edge proxy bu ağa bağlanmaz.
 4. **TLS Uygulamada Değil Edge'dedir:** Uygulama kendi içinde self-signed/Let's Encrypt sertifika yönetmeye çalışmaz; `X-Forwarded-Proto` ve `X-Forwarded-For` header'larına güvenir (reverse proxy arkasında çalışacağını bilir).
 

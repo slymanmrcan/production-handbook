@@ -19,6 +19,8 @@ AI bir `Dockerfile` veya `docker-compose.yml` ürettiğinde aşağıdaki kuralla
 | **Log Limiti** | `json-file` driver + `max-size: "10m"`, `max-file: "3"`. | Sınırsız Docker logu. |
 | **Runtime Hardening** | `security_opt: ["no-new-privileges:true"]`, `cap_drop: ["ALL"]`, uygunsa `read_only: true`. | `privileged: true` veya `network_mode: host`. |
 
+Host erişimi gereken özel servislerde Docker Engine 28.0.0 veya üzerinde loopback bind kullanın. Uygun ortamda servisi özel Docker ağında tutun. [Docker Gateway Mimarisi](../security/docker-gateway.md)
+
 ---
 
 ## 2. Stack Bazlı Kontratlar

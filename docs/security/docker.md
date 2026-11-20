@@ -205,7 +205,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
-    # 8. Health check (Zombie container tespiti & Auto-restart)
+    # 8. Health check (uygulamanın yanıt verdiğini ölçer)
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
@@ -223,6 +223,8 @@ secrets:
 ```
 
 ### Compose Hardening Checklist
+
+Docker Compose healthcheck başarısız olduğunda container `unhealthy` olur. Restart policy container ana süreci çıktığında devreye girer. [Docker restart policy belgeleri](https://docs.docker.com/engine/containers/start-containers-automatically/)
 
 Bu örneği prod'a taşımadan önce en az şunları doğrula:
 

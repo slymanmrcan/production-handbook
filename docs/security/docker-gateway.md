@@ -1,211 +1,69 @@
-# Docker Gateway Mimarisi 🛡️
+# Docker Gateway Mimarisi
 
-Bu bölüm, güvenlik duvarını (UFW) delmeden ve portları dış dünyaya saçmadan Docker konteynerlerinin nasıl yönetileceğini anlatır.
+Public web trafiğini reverse proxy'de `80/443` üzerinden karşılayın. Docker, yayımlanmış portları UFW'nin host giriş kurallarından önce yönlendirebilir. Bu nedenle uygulama, veritabanı ve yönetim panellerinde host port eşlemesi varsa hangi adrese bağlandığını Compose dosyasında açıkça belirtin. [Docker paket filtreleme belgeleri](https://docs.docker.com/engine/network/packet-filtering-firewalls/)
 
-## Sorun: "Port 3434 Açtım, Hacklendim"
+## Proxy Container İçindeyse
 
-Docker, ağ kurallarını yönetmek için `iptables` ile doğrudan konuşur. Siz UFW ile "her şeyi kapat" deseniz bile, `docker-compose.yml` dosyasında şu satırı yazdığınız an o port tüm dünyaya açılır:
+Proxy ve uygulamayı aynı özel bridge ağına bağlayın. Proxy, uygulamaya servis adı ve container portu ile erişir. Uygulamada `ports:` tanımı kullanmayın. `expose` container portunu belgeler. Erişim sınırını ağ üyeliği belirler.
+
+Veritabanını ayrı bir `internal: true` backend ağına bağlayın. Proxy yalnızca frontend ağına, uygulama frontend ve backend'e, DB yalnızca backend'e katılır.
+
+```mermaid
+flowchart LR
+    Client[İstemci] -->|80 / 443| Proxy[Reverse proxy]
+    Proxy -->|frontend ağı| App[Uygulama]
+    App -->|internal backend ağı| DB[Veritabanı]
+```
+
+## Proxy Host Üzerindeyse
+
+Uygulamanın mevcut servis tanımında, örneğin `3000` portunu sadece loopback'e yayınlayın. Nginx upstream'i `http://127.0.0.1:3000` olur.
 
 ```yaml
 ports:
-  - "3000:3000" # ❌ TEHLİKELİ: UFW'yi bypass eder ve tüm dünyaya açılır!
+  - "127.0.0.1:3000:3000"
 ```
 
-## Çözüm: Gateway (Kapı) Modeli
-
-Tüm trafiği tek bir güvenli kapıdan (Port 80/443) içeri alıp, içeride dağıtma yöntemidir.
-
-### 🔥 Kritik Eksikler ve Çözümleri
-
-Aşağıdaki 3 kuralı uygulamadan Docker sunucusu kurmayın.
-
-#### 1. NPM Admin Paneli (Port 81) Dünyaya Kapatılmalı!
-
-Nginx Proxy Manager kurarken Port 81'i (Admin) dışarı açmak büyük risktir.
-
-**Yanlış:**
-
-```yaml
-ports:
-  - "81:81" # ❌ Admin paneli 0.0.0.0 üzerinden dünyaya açık!
-```
-
-**Doğru:**
-Admin paneline sadece sunucu içinden (localhost) erişilmeli. Erişmek için SSH Tunnel kullanın.
-
-```yaml
-ports:
-  - "127.0.0.1:81:81" # ✅ Sadece localhost erişebilir
-```
-
-**Nasıl Erişirim? (SSH Tunnel)**
-Bilgisayarınızdan terminali açın:
+Nginx Proxy Manager kullanıyorsanız yönetim panelini de `127.0.0.1:81:81` ile sınırlayın. SSH politikanız bu tünele izin veriyorsa operatör bilgisayarından tünel açıp `http://127.0.0.1:8081` adresini kullanın.
 
 ```bash
-ssh -L 81:localhost:81 user@sunucu-ip
+ssh -N -L 127.0.0.1:8081:127.0.0.1:81 user@sunucu.example.com
 ```
 
-Tarayıcınızda: `http://localhost:81`
+Loopback yayınları için Docker Engine 28.0.0 veya üzerini kullanın. Önceki sürümlerde aynı ağ segmentindeki makineler loopback'e yayımlanan porta erişebilir. [Docker port yayınlama belgeleri](https://docs.docker.com/engine/network/port-publishing/)
 
-#### 2. Localhost Binding (NPM Kullanmayanlar İçin)
+## Docker Firewall Kuralları
 
-Eğer NPM kullanmıyorsanız, portu sadece sunucu içinden erişilebilir yapın ve Nginx'i buna göre ayarlayın.
+Docker'ın `iptables` / `ip6tables` kural yönetimini etkin bırakın. Kural yönetimini kapatmak ağ izolasyonunu, yönlendirmeyi ve container'ların ağ çıkışını etkileyebilir. Daha önce kapatıldıysa daemon ayarını ve mevcut ağları bakım penceresinde gözden geçirin. Değişiklik sonrası proxy, uygulama ve DB bağlantılarını yeniden doğrulayın.
+
+## Ayrı Compose Projeleri
+
+Proxy ve uygulama farklı Compose projelerindeyse, gateway ağı bir kez oluşturulur.
+
+```bash
+docker network create gateway-net
+```
+
+Her iki Compose dosyasında da ağı `external: true` olarak tanımlayıp ilgili proxy ve uygulama servisini `gateway-net` ağına ekleyin. Uygulamanın mevcut özel backend ağı tanımını koruyun.
 
 ```yaml
-ports:
-  - "127.0.0.1:3000:3000" # ✅ Sadece sunucu içinden erişilebilir
-```
-
-#### 3. Docker'ın UFW'yi Bypass Etmesini Engelleme
-
-Docker'ın güvenlik duvarınızı delmesini kökten çözmek için `/etc/docker/daemon.json` dosyasına şunu ekleyin:
-
-```json
-{
-  "iptables": false
-}
-```
-
-Ardından `sudo systemctl restart docker`.
-
-> ⚠️ **Dikkat:** Bu ayar sonrası container'lar internete çıkamayabilir. Gelişmiş kullanıcılar içindir.
-
----
-
-## 🏗️ Tam Örnek: NPM + App + Database
-
-Aşağıdaki örnekte:
-
-1.  **NPM:** Dışarıya tek çıkış noktası. Admin paneli güvenli.
-2.  **App:** Dışarıya kapalı, sadece NPM ve DB ile konuşur.
-3.  **DB:** Dışarıya kapalı, sadece App ile konuşur.
-
-`docker-compose.yml`:
-
-```yaml
-version: "3.8"
-
-services:
-  # 1. Nginx Proxy Manager (Gateway)
-  npm:
-    image: jc21/nginx-proxy-manager:latest
-    restart: unless-stopped
-    ports:
-      - "80:80" # HTTP (Açık)
-      - "443:443" # HTTPS (Açık)
-      - "127.0.0.1:81:81" # Admin (Sadece Localhost)
-    volumes:
-      - npm_data:/data
-      - npm_ssl:/etc/letsencrypt
-    networks:
-      - frontend # App ile konuşacak
-      # Database ağına bağlanmasına gerek YOK
-
-  # 2. Uygulama (Port YOK)
-  app:
-    image: node:18-alpine
-    restart: unless-stopped
-    expose:
-      - "3000" # Port mapping yok, sadece expose
-    networks:
-      - frontend # NPM ile konuşur
-      - backend # DB ile konuşur
-    environment:
-      DATABASE_URL: postgres://user:secret@db:5432/mydb
-
-  # 3. Veritabanı (İzole)
-  db:
-    image: postgres:15-alpine
-    restart: unless-stopped
-    expose:
-      - "5432"
-    networks:
-      - backend # Sadece App ile konuşur. NPM burayı görmez.
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
-    secrets:
-      - db_pass
-
 networks:
-  frontend:
-    driver: bridge # NPM <-> App
-  backend:
-    driver: bridge # App <-> DB
-    internal: true # 🔒 İnternete çıkış YOK (Güvenli)
-
-volumes:
-  npm_data:
-  npm_ssl:
-  db_data:
-
-secrets:
-  db_pass:
-    file: ./secrets/db_password.txt
+  gateway-net:
+    external: true
 ```
 
----
+Proxy upstream'inde ağdaki benzersiz uygulama servis adını kullanın. DB ve cache yalnızca kendi backend ağına bağlı kalır.
 
-## 🌐 Farklı `docker-compose.yml` Dosyaları (External Network)
-
-NPM ana klasörde, uygulamanız başka klasörde ise birbirlerini nasıl bulurlar? **External Network** ile.
-
-1.  **Network'ü elle oluşturun:**
-
-    ```bash
-    docker network create gateway-net
-    ```
-
-2.  **NPM Compose:**
-
-    ```yaml
-    services:
-      npm:
-        networks:
-          - gateway-net
-    networks:
-      gateway-net:
-        external: true # Var olanı kullan
-    ```
-
-3.  **App Compose:**
-    `yaml
-    services:
-      app:
-        networks:
-          - gateway-net
-    networks:
-      gateway-net:
-        external: true # Var olanı kullan
-    `
-    Artık NPM üzerinden `http://app:3000` şeklinde erişebilirsiniz.
-
----
-
-## ✅ Doğrulama: Portlar Gerçekten Kapalı mı?
-
-Kurulumu yaptınız, peki güvenli mi? Test edin.
+## Doğrulama
 
 ```bash
-# 1. Dışarıdan port taraması (Kendi bilgisayarınızdan)
-nmap -p 81,3000,5432 sunucu-ip
-# Beklenen: "filtered" veya "closed"
-
-# 2. Sunucu içinden kontrol
-sudo netstat -tlnp | grep docker
-# 81 ve 3000 portları "127.0.0.1" IP'sine mi bağlı? (0.0.0.0 OLMAMALI)
-
-# 3. Network İzolasyon Testi
-docker exec -it npm ping db
-# Beklenen: "bad address" veya timeout (NPM, DB'ye erişememeli!)
+docker version --format '{{.Server.Version}}'
+docker compose config --quiet
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
+sudo ss -lntup
+docker network inspect gateway-net
 ```
 
-## 🔒 SSL Sertifikası (Let's Encrypt)
+`gateway-net` örnek ağ adıdır. Kendi Compose ağınızı kontrol edin. Yalnızca edge proxy'nin web portları ve yönetim SSH'ı public olmalıdır. Uygulama, DB, cache ve panel için yayın ya bulunmaz ya da `127.0.0.1` ile sınırlıdır. İstemci tarafında IPv4 ve varsa IPv6 üzerinden yalnızca kendi host'unuzdaki beklenen erişimi doğrulayın. Proxy üstünden uygulamanın HTTPS sağlık yanıtını da kontrol edin.
 
-NPM arayüzünden (localhost:81) kolayca SSL alabilirsiniz:
-
-1.  **Proxy Host** eklerken **SSL** sekmesine gidin.
-2.  **Request a new SSL Certificate** seçin.
-3.  **Force SSL** ve **HTTP/2** aktif edin.
-4.  Domain'in sunucu IP'sine yönlendiğinden emin olun.
+Dağıtım ayrıntıları için [Docker Güvenliği](docker.md) ve [Port Stratejisi](../architecture/port-strategy.md) sayfalarını kullanın.

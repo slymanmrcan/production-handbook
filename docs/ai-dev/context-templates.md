@@ -16,7 +16,7 @@ This application will be deployed to a hardened Ubuntu LTS server running Docker
 ### Mandatory Rules for Code, Dockerfiles & Configs
 1. **Networking & Ports:**
    - Never expose app, database, or cache ports directly to `0.0.0.0`.
-   - Use `expose` on private Docker networks, or bind to `127.0.0.1:<host>:<container>` if host access is required.
+   - Use private Docker networks. For required host access, bind to `127.0.0.1:<host>:<container>` on Docker Engine 28.0.0 or later. Keep Docker packet filtering enabled.
    - Standard host port ranges: Frontend `3000-3999`, API `4000-4999`, Data `5000-5999`, Ops `8000-8999`.
 2. **TLS & Reverse Proxy:**
    - TLS terminates at the edge reverse proxy. The app listens on plain HTTP inside the container.

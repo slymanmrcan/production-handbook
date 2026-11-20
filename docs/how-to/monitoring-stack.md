@@ -149,7 +149,7 @@ groups:
           description: "Node exporter target is unreachable."
 
       - alert: HighCpuUsage
-        expr: avg by (instance) (rate(node_cpu_seconds_total{mode!="idle"}[5m])) > 0.80
+        expr: 1 - avg by (instance) (rate(node_cpu_seconds_total{job="node",mode="idle"}[5m])) > 0.80
         for: 10m
         labels:
           severity: warning

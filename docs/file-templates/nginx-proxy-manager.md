@@ -91,7 +91,7 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "81:81"
+      - "127.0.0.1:81:81"
       - "443:443"
     environment:
       # Mevcut Postgres'e bağlanma
@@ -232,7 +232,7 @@ services:
     ports:
       # HTTP ve HTTPS Portları (Dünyaya Açık)
       - "80:80"
-      - "81:81" # Admin UI (DİKKAT: Firewall ile Kısıtlayın!)
+      - "127.0.0.1:81:81" # Admin UI (loopback)
       - "443:443"
     environment:
       # MariaDB Bağlantı Bilgileri
@@ -301,7 +301,7 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "81:81"
+      - "127.0.0.1:81:81"
       - "443:443"
     environment:
       # Veritabanı ayarı YOK (Otomatik SQLite kullanır)
@@ -346,7 +346,7 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "81:81"
+      - "127.0.0.1:81:81"
       - "443:443"
     environment:
       # Postgres Bağlantı Bilgileri
@@ -492,7 +492,7 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "81:81"
+      - "127.0.0.1:81:81"
       - "443:443"
     environment:
       # Mevcut Postgres'e bağlanma ayarları
@@ -593,17 +593,12 @@ docker network inspect backend_net
 
 ---
 
-## 🛡️ Güvenlik Uyarısı: Port 81
+## Yönetim Paneli Erişimi
 
-`81` portu NPM'in yönetim panelidir. Varsayılan kullanıcı şifresi: `admin@example.com` / `changeme`.
-
-**Kesinlikle Yapılması Gerekenler:**
-
-1.  İlk girişte şifreyi değiştirin.
-2.  Mümkünse `81` portunu **Firewall (UFW)** ile dış dünyaya kapatın, sadece kendi IP'nize veya VPN IP'nize açın.
+İlk kurulumda yönetim parolasını değiştirin. `docker compose ps` çıktısında panel portunun `127.0.0.1:81` ile sınırlı olduğunu doğrulayın. SSH politikanız tünele izin veriyorsa yönetim bilgisayarından `http://127.0.0.1:8081` adresine bağlanın.
 
 ```bash
-# Sadece yönetim IP'sine izin ver
-sudo ufw allow form 1.2.3.4 to any port 81
-sudo ufw deny 81
+ssh -N -L 127.0.0.1:8081:127.0.0.1:81 user@sunucu.example.com
 ```
+
+Ağ kuralları ve Docker sürüm notu için [Docker Gateway](../security/docker-gateway.md) rehberini kullanın.
