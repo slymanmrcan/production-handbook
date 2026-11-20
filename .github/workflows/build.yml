@@ -17,10 +17,13 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.x
+          python-version: "3.12"
 
-      - name: Install MkDocs
-        run: pip install mkdocs-material
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify Strict Build
+        run: mkdocs build --strict
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force
