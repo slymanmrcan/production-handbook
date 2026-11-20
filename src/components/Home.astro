@@ -1,0 +1,340 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
+
+const base = import.meta.env.BASE_URL;
+const steps = [
+  {
+    id: 'sunucuyu-hazrla',
+    icon: 'server',
+    title: 'Sunucuyu hazırla',
+    description: 'SSH erişimini ve güvenlik duvarını ayarla, Docker’ı yükle.',
+  },
+  {
+    id: 'uygulamay-yaynla',
+    icon: 'rocket',
+    title: 'Uygulamayı yayınla',
+    description: 'HTTPS erişimini kur ve kullanıcı trafiğini açmadan önce uygulamayı doğrula.',
+  },
+  {
+    id: 'canl-sistemi-islet',
+    icon: 'analytics',
+    title: 'Canlı sistemi işlet',
+    description: 'Servisleri izle ve yedekten geri dönmeyi dene.',
+  },
+] as const;
+
+const resources = [
+  { title: 'Canlıya geçiş kontrol listesi', path: 'checklists/prod-ready/', icon: 'notes' },
+  { title: 'Komut referansı', path: 'reference/', icon: 'laptop' },
+  { title: 'AI ile geliştirme', path: 'ai-dev/', icon: 'puzzle' },
+] as const;
+---
+
+<div class="home-roadmap not-content">
+  <span id="sunucunu-kuruygulaman-yayna-al" aria-hidden="true"></span>
+
+  <section aria-labelledby="kurulum-admlar">
+    <div class="section-title">
+      <AnchorHeading level={2} id="kurulum-admlar">Kurulum adımları</AnchorHeading>
+    </div>
+    <ol class="steps" role="list">
+      {steps.map(({ id, icon, title, description }, day) => (
+        <li {id}>
+          <a class="step" href={`${base}getting-started/roadmap/#day-${day}`}>
+            <span class="step-meta">
+              <span class="step-icon"><Icon name={icon} size="1.35rem" /></span>
+              <span class="step-day">Day {day}</span>
+            </span>
+            <span class="step-title">{title}</span>
+            <span class="step-description">{description}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <nav class="resources" id="belirli-bir-is-icin-geldin-mi" aria-label="Hızlı bağlantılar">
+    {resources.map(({ title, path, icon }) => (
+      <a href={`${base}${path}`}><Icon name={icon} size="1.15rem" />{title}</a>
+    ))}
+  </nav>
+</div>
+
+<style>
+  :global(.hero:has(.home-hero-image)) {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid #273754;
+    border-radius: 1.375rem;
+    padding: 0;
+    background: #0b1425;
+  }
+
+  :global(.hero:has(.home-hero-image) .stack) {
+    grid-area: 1 / 1;
+    z-index: 1;
+    align-items: flex-start;
+    gap: 1.65rem;
+    padding: clamp(1.5rem, 5vw, 4rem);
+    padding-block-end: 0;
+    text-align: start;
+  }
+
+  :global(.hero:has(.home-hero-image) .copy) {
+    align-items: flex-start;
+    gap: 1.15rem;
+  }
+
+  :global(.hero:has(.home-hero-image) h1) {
+    color: #f6f8ff;
+    font-size: clamp(2rem, 8vw, 3.75rem);
+    font-weight: 750;
+    letter-spacing: -0.055em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  :global(.hero:has(.home-hero-image) h1 span) {
+    display: block;
+    color: #ffb779;
+  }
+
+  :global(.hero:has(.home-hero-image) .tagline) {
+    max-width: 40ch;
+    color: #bdc8da;
+    font-size: clamp(1rem, 1.55vw, 1.16rem);
+    line-height: 1.65;
+  }
+
+  :global(.hero:has(.home-hero-image) .actions) {
+    justify-content: flex-start;
+    gap: 0.65rem;
+  }
+
+  :global(.hero:has(.home-hero-image) .sl-link-button) {
+    min-height: 2.75rem;
+    border-radius: 0.65rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  :global(.hero:has(.home-hero-image) .primary) {
+    border-color: #ffb779;
+    background: #ffb779;
+    color: #281505;
+  }
+
+  :global(.hero:has(.home-hero-image) .primary:hover) {
+    border-color: #ffd0a7;
+    background: #ffd0a7;
+    color: #281505;
+  }
+
+  :global(.hero:has(.home-hero-image) .secondary) {
+    border-color: #65738a;
+    background: #182439;
+    color: #ecf1fb;
+  }
+
+  :global(.hero:has(.home-hero-image) .secondary:hover) {
+    border-color: #aebbd0;
+    background: #25334a;
+  }
+
+  :global(.hero:has(.home-hero-image) .hero-html) {
+    grid-area: 2 / 1;
+    width: 100%;
+    margin: -0.5rem 0 0;
+    aspect-ratio: 2 / 1;
+    mask-image: linear-gradient(to bottom, transparent, #000 35%);
+  }
+
+  :global(.home-hero-image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 63%;
+  }
+
+  .home-roadmap {
+    display: grid;
+    gap: 1.4rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .home-roadmap > span {
+    position: absolute;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 1.35rem;
+    margin-bottom: 1.05rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--handbook-border);
+  }
+
+  .section-title :global(h2) {
+    color: var(--sl-color-white);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 740;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+  }
+
+  .section-title :global(.sl-anchor-link) {
+    color: var(--sl-color-accent);
+  }
+
+  .steps {
+    display: grid;
+    gap: 0.9rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+    min-height: 100%;
+    border: 1px solid var(--handbook-border);
+    border-radius: 0.875rem;
+    padding: clamp(1.1rem, 2vw, 1.45rem);
+    background: var(--handbook-surface);
+    color: var(--sl-color-white);
+    text-decoration: none;
+    box-shadow: var(--handbook-shadow);
+  }
+
+  .step:hover,
+  .step:focus-visible {
+    border-color: var(--sl-color-accent);
+  }
+
+  .step-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .step-icon {
+    display: grid;
+    width: 2.6rem;
+    height: 2.6rem;
+    place-items: center;
+    border-radius: 0.65rem;
+    background: var(--sl-color-accent-low);
+    color: var(--sl-color-accent-high);
+  }
+
+  .step-day {
+    color: var(--sl-color-gray-3);
+    font-family: var(--__sl-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .step-title {
+    font-size: clamp(1.1rem, 1.7vw, 1.3rem);
+    font-weight: 720;
+    letter-spacing: -0.025em;
+    line-height: 1.35;
+  }
+
+  .step-description {
+    max-width: 39ch;
+    color: var(--sl-color-gray-2);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .resources {
+    display: grid;
+    gap: 0.25rem;
+    border: 1px solid var(--handbook-border);
+    border-radius: 0.875rem;
+    padding: 0.4rem;
+    background: var(--handbook-subtle);
+  }
+
+  .resources a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.75rem;
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    color: var(--sl-color-white);
+    font-size: 0.875rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .resources a:hover {
+    background: var(--handbook-surface);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .resources :global(svg) {
+    flex-shrink: 0;
+    color: var(--sl-color-accent);
+  }
+
+  @media (min-width: 46rem) {
+    .steps,
+    .resources {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .resources a {
+      justify-content: center;
+    }
+  }
+
+  @media (min-width: 44rem) {
+    :global(.hero:has(.home-hero-image)) {
+      grid-template-columns: minmax(0, 60%) 1fr;
+      min-height: clamp(23rem, 32vw, 27rem);
+    }
+
+    :global(.hero:has(.home-hero-image) .stack) {
+      padding-block: 3.1rem;
+    }
+
+    :global(.hero:has(.home-hero-image) h1) {
+      font-size: clamp(2.35rem, 4.2vw, 3.75rem);
+    }
+
+    :global(.hero:has(.home-hero-image) .hero-html) {
+      position: absolute;
+      inset: 0 0 0 42%;
+      grid-area: auto;
+      width: auto;
+      margin: 0;
+      aspect-ratio: auto;
+      mask-image: linear-gradient(to right, transparent, #000 32%);
+    }
+
+    :global(.home-hero-image) {
+      object-position: 62% center;
+    }
+  }
+</style>

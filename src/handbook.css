@@ -1,19 +1,262 @@
 :root {
+  --handbook-home-width: 77rem;
+  --handbook-landing: #0b1120;
+  --handbook-surface: #141f32;
+  --handbook-subtle: #121b2b;
+  --handbook-border: #2b3950;
+  --handbook-shadow: 0 2px 6px #03070e33;
+
+  --sl-nav-height: 3.875rem;
+  --sl-nav-pad-y: 0.5rem;
+  --sl-menu-button-size: 2.5rem;
   --sl-content-width: 46rem;
-  --sl-sidebar-width: 17rem;
-  --sl-color-accent-low: #23304f;
-  --sl-color-accent: #9cb5fa;
-  --sl-color-accent-high: #dfe7ff;
+  --sl-sidebar-width: 16.75rem;
+  --sl-content-pad-x: clamp(1rem, 3.2vw, 3rem);
+  --sl-content-gap-y: 1.15rem;
+  --sl-line-height: 1.68;
+  --sl-text-h1: clamp(2rem, 4.5vw, 3.3rem);
+  --sl-text-h2: clamp(1.55rem, 3vw, 2rem);
+  --sl-text-h3: clamp(1.25rem, 2.4vw, 1.5rem);
+
+  --sl-color-white: #f3f6ff;
+  --sl-color-gray-1: #e0e8f6;
+  --sl-color-gray-2: #bdc8db;
+  --sl-color-gray-3: #9caac0;
+  --sl-color-gray-4: #72839e;
+  --sl-color-gray-5: #33425a;
+  --sl-color-gray-6: var(--handbook-surface);
+  --sl-color-black: #0f1828;
+  --sl-color-accent-low: #342719;
+  --sl-color-accent: #ffb779;
+  --sl-color-accent-high: #ffc999;
+  --sl-color-bg-nav: #10192a;
+  --sl-color-bg-sidebar: var(--handbook-subtle);
+  --sl-color-bg-inline-code: #1e2a3e;
+  --sl-color-hairline-light: var(--handbook-border);
+  --sl-color-hairline: var(--handbook-border);
+  --sl-color-hairline-shade: var(--handbook-border);
 }
 
 :root[data-theme='light'] {
-  --sl-color-accent-low: #eaf0ff;
-  --sl-color-accent: #334e9e;
-  --sl-color-accent-high: #243577;
+  --handbook-landing: #f5f7fb;
+  --handbook-surface: #fff;
+  --handbook-subtle: #eff3f9;
+  --handbook-border: #dce3ed;
+  --handbook-shadow: 0 2px 5px #192d5010;
+
+  --sl-color-white: #142137;
+  --sl-color-gray-1: #202e46;
+  --sl-color-gray-2: #40516a;
+  --sl-color-gray-3: #53647e;
+  --sl-color-gray-4: #647793;
+  --sl-color-gray-5: #c1ccdc;
+  --sl-color-gray-6: #e8edf5;
+  --sl-color-gray-7: #f4f6fb;
+  --sl-color-black: #fff;
+  --sl-color-accent-low: #fcebdc;
+  --sl-color-accent: #9b471d;
+  --sl-color-accent-high: #793410;
+  --sl-color-bg-nav: var(--handbook-surface);
+  --sl-color-bg-sidebar: #f7f9fc;
+  --sl-color-bg-inline-code: #e9eef7;
 }
 
-.hero {
-  padding-block: clamp(2.5rem, 6vw, 4.25rem);
+:where(a, button, summary, select):focus-visible {
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 3px;
+}
+
+[data-has-hero] body {
+  background: var(--handbook-landing);
+}
+
+[data-has-hero] main > .content-panel {
+  padding-block-start: clamp(1.1rem, 3vw, 2.6rem);
+}
+
+[data-has-hero] main > .content-panel > .sl-container {
+  max-width: var(--handbook-home-width);
+}
+
+[data-has-sidebar] main > .content-panel:has(#_top) {
+  padding-block: clamp(1.7rem, 4vw, 3.3rem) 0;
+}
+
+[data-has-sidebar] main > .content-panel:has(#_top) + .content-panel {
+  border-top: 0;
+  padding-block-start: 1.55rem;
+}
+
+[data-has-sidebar] #_top {
+  margin: 0;
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+[data-has-sidebar] #_top::after {
+  display: block;
+  width: 2.25rem;
+  height: 0.2rem;
+  margin-block-start: 1.15rem;
+  border-radius: 1rem;
+  background: var(--sl-color-accent);
+  content: '';
+}
+
+.sidebar-content {
+  padding-block-start: 1.4rem;
+}
+
+.sidebar-content :is(.top-level a, .top-level summary) {
+  border-radius: 0.5rem;
+  padding-block: 0.45rem;
+  font-size: 0.875rem;
+}
+
+.sidebar-content .top-level .large {
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+
+.sidebar-content .top-level :is(a, summary):hover {
+  background: var(--handbook-border);
+  color: var(--sl-color-white);
+}
+
+.sidebar-content .top-level a[aria-current='page'] {
+  background: var(--sl-color-accent-low);
+  color: var(--sl-color-accent-high);
+  box-shadow: inset 2px 0 var(--sl-color-accent);
+}
+
+.sidebar-content .top-level summary .caret {
+  width: 0.95rem;
+  color: var(--sl-color-gray-3);
+}
+
+.right-sidebar {
+  border-inline-start: 0;
+}
+
+.right-sidebar-panel {
+  padding-block-start: clamp(1.7rem, 4vw, 3.3rem);
+}
+
+.right-sidebar-panel h2 {
+  margin-block-end: 0.8rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.right-sidebar-panel a {
+  padding-block: 0.42rem;
+  border-inline-start: 1px solid var(--handbook-border);
+  border-radius: 0 0.4rem 0.4rem 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.right-sidebar-panel a:hover {
+  background-color: var(--handbook-subtle);
+}
+
+.right-sidebar-panel a[aria-current='true'] {
+  border-inline-start-color: var(--sl-color-accent);
+  color: var(--sl-color-text-accent);
+}
+
+mobile-starlight-toc nav {
+  border-top-color: var(--handbook-border);
+}
+
+.sl-menu-button[popovertarget] {
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--handbook-border);
+  border-radius: 0.6rem;
+  background-color: var(--handbook-subtle);
+  color: var(--sl-color-white);
+  box-shadow: none;
+}
+
+.sl-markdown-content :is(h2, h3, h4):not(:where(.not-content *)) {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.sl-markdown-content .sl-heading-wrapper:not(:where(.not-content *)) {
+  --sl-anchor-icon-color: var(--sl-color-accent);
+}
+
+.sl-markdown-content > .level-h2:not(:first-child) {
+  border-top: 1px solid var(--handbook-border);
+  padding-top: 1.35rem;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.sl-markdown-content pre:not(:where(.not-content *)) {
+  border-radius: 0.65rem;
+}
+
+.expressive-code {
+  --ec-brdRad: 0.65rem;
+  --ec-brdCol: var(--handbook-border);
+}
+
+.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+  border-radius: 0.3rem;
+}
+
+.sl-markdown-content .starlight-aside {
+  border-radius: 0.55rem;
+}
+
+.sl-markdown-content table:not(:where(.not-content *)) {
+  border: 1px solid var(--handbook-border);
+  border-radius: 0.65rem;
+}
+
+.sl-markdown-content :is(th, td):not(:where(.not-content *)) {
+  border-color: var(--handbook-border);
+  padding-inline: 0.9rem;
+}
+
+.sl-markdown-content th:not(:where(.not-content *)) {
+  background: var(--handbook-subtle);
+}
+
+.sl-markdown-content tbody tr:last-child td:not(:where(.not-content *)) {
+  border-bottom: 0;
+}
+
+.pagination-links a {
+  border-color: var(--handbook-border);
+  border-radius: 0.75rem;
+  background: var(--handbook-subtle);
+  box-shadow: none;
+}
+
+.pagination-links .link-title {
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+@media (max-width: 49.999rem) {
+  :root:has(.home-header) {
+    --sl-nav-height: 6.25rem;
+  }
+}
+
+@media (min-width: 50rem) {
+  :root {
+    --sl-nav-height: 4.5rem;
+    --sl-nav-pad-x: var(--sl-content-pad-x);
+  }
 }
 
 .sl-markdown-content details {
