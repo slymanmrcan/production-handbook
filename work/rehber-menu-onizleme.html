@@ -1,0 +1,228 @@
+<div class="viz-carousel" id="handbook-navigation-preview" aria-label="Sunucu rehberi menü seçenekleri" data-previous-label="Önceki düzen" data-next-label="Sonraki düzen">
+  <section class="handbook-demo" data-variant="Üç bağlantılı üst menü" aria-label="Üç bağlantılı üst menü">
+    <header class="demo-top">
+      <span class="demo-brand"><i data-lucide="book-open" aria-hidden="true"></i> Sunucu Rehberi</span>
+      <nav data-header-nav aria-label="Ana menü"></nav>
+      <button class="demo-search" type="button" data-search><i data-lucide="search" aria-hidden="true"></i> Ara</button>
+    </header>
+    <div class="demo-layout">
+      <details open>
+        <summary>Rehber menüsü</summary>
+        <nav data-side-nav aria-label="Rehber menüsü"></nav>
+      </details>
+      <article data-article aria-live="polite"></article>
+    </div>
+  </section>
+  <section class="handbook-demo" data-variant="Sol menü ve arama" aria-label="Sol menü ve arama" hidden>
+    <header class="demo-top">
+      <span class="demo-brand"><i data-lucide="book-open" aria-hidden="true"></i> Sunucu Rehberi</span>
+      <button class="demo-search" type="button" data-search><i data-lucide="search" aria-hidden="true"></i> Ara</button>
+    </header>
+    <div class="demo-layout">
+      <details open>
+        <summary>Rehber menüsü</summary>
+        <nav data-side-nav aria-label="Rehber menüsü"></nav>
+      </details>
+      <article data-article aria-live="polite"></article>
+    </div>
+  </section>
+</div>
+
+<style>
+  #handbook-navigation-preview .handbook-demo {
+    --paper: light-dark(#fafafa, #16171b);
+    --ink: light-dark(#1e2027, #f0f1f5);
+    --faint: light-dark(#525969, #b9bfce);
+    --stroke: light-dark(#dce0e8, #363946);
+    --selection: light-dark(#edf0ff, #272d4a);
+    --link: light-dark(#3048a1, #bac6ff);
+    color-scheme: inherit;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    min-height: 500px;
+    font: 400 14px/1.5 system-ui, sans-serif;
+  }
+  #handbook-navigation-preview .demo-top {
+    min-height: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--stroke);
+  }
+  #handbook-navigation-preview .demo-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-inline-end: auto;
+    font-weight: 700;
+  }
+  #handbook-navigation-preview [data-header-nav] { display: flex; flex-wrap: wrap; gap: 4px; }
+  #handbook-navigation-preview button {
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    padding: 8px 10px;
+    text-align: start;
+  }
+  #handbook-navigation-preview button:is(:hover, [aria-current="page"], [aria-pressed="true"]) {
+    color: var(--link);
+    background: var(--selection);
+  }
+  #handbook-navigation-preview .demo-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--stroke);
+  }
+  #handbook-navigation-preview .demo-layout { display: grid; grid-template-columns: 205px minmax(0, 1fr); }
+  #handbook-navigation-preview details { border-inline-end: 1px solid var(--stroke); padding: 16px 12px; }
+  #handbook-navigation-preview summary { padding: 5px 8px; font-weight: 650; }
+  #handbook-navigation-preview [data-side-nav] { display: grid; gap: 2px; margin-top: 8px; }
+  #handbook-navigation-preview [data-side-nav] p { color: var(--faint); font-size: 12px; margin: 10px 8px 2px; }
+  #handbook-navigation-preview article { padding: clamp(16px, 4vw, 38px); }
+  #handbook-navigation-preview article h2 { font-size: 26px; line-height: 1.15; margin: 8px 0 14px; }
+  #handbook-navigation-preview article p { margin: 0 0 12px; }
+  #handbook-navigation-preview .demo-location { color: var(--faint); font-size: 13px; }
+  #handbook-navigation-preview .demo-next { margin-top: 4px; color: var(--link); border: 1px solid var(--stroke); }
+  #handbook-navigation-preview dialog {
+    width: min(440px, 90%);
+    max-width: none;
+    padding: 16px;
+    border: 1px solid var(--stroke);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  #handbook-navigation-preview dialog::backdrop { background: rgb(14 17 28 / 45%); }
+  #handbook-navigation-preview .demo-dialog-heading { display: flex; align-items: center; justify-content: space-between; }
+  #handbook-navigation-preview input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--stroke);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+  }
+  #handbook-navigation-preview [data-results] { display: grid; margin-top: 8px; }
+  @media (max-width: 530px) {
+    #handbook-navigation-preview .handbook-demo { min-height: 400px; }
+    #handbook-navigation-preview [data-header-nav] { flex: 0 0 100%; order: 1; }
+    #handbook-navigation-preview .demo-layout { grid-template-columns: 1fr; }
+    #handbook-navigation-preview details { border-inline-end: 0; border-bottom: 1px solid var(--stroke); padding-block: 8px; }
+    #handbook-navigation-preview :is(button, summary) { min-height: 44px; }
+  }
+</style>
+
+<script>
+(() => {
+  const root = document.getElementById("handbook-navigation-preview");
+  const sections = [
+    { title: "Kurulum", nav: "Rehber", entries: [
+      { title: "Sunucuyu hazırla", summary: "İlk SSH bağlantısını kur, yönetici hesabını hazırla ve Docker’ı yükle.", detail: "Yeni bir terminalde yönetici hesabınla bağlanmayı dene. Docker çalıştığında uygulama yayınına geç." },
+      { title: "Uygulamayı yayınla", summary: "Uygulamayı Compose ile çalıştır ve HTTPS erişimini reverse proxy üzerinden sağla.", detail: "Kullanıcı trafiğini açmadan önce uygulamanın sağlık kontrolünü ve önceki sürüme dönüş yolunu doğrula." },
+      { title: "Canlı sistemi işlet", summary: "Servisleri izle, yedekten geri dönmeyi dene ve arızalara hazırlıklı ol.", detail: "Test alarmının ulaştığını ve son yedeğin test ortamında geri yüklenebildiğini kontrol et." },
+    ] },
+    { title: "Referans", nav: "Referans", entries: [
+      { title: "Docker Gateway", summary: "Uygulama, veritabanı ve yönetim arayüzlerini özel ağda tut.", detail: "HTTP ve HTTPS trafiğini reverse proxy karşılar. Yönetim erişimi SSH üzerinden sağlanır." },
+      { title: "Canlıya geçiş kontrolü", summary: "HTTPS erişimini, servis sağlığını, yedeği ve geri dönüş hazırlığını kontrol et.", detail: "Zorunlu maddeler tamamlandığında yayın kararını kaydet." },
+    ] },
+    { title: "Olay müdahalesi", nav: "Olay müdahalesi", entries: [
+      { title: "Servise erişilemiyor", summary: "Son değişiklikleri, servis durumunu ve uygulama loglarını sırayla incele.", detail: "Dışarıdan erişimin ve uygulama sağlık kontrolünün tekrar başarılı olduğunu doğrula." },
+      { title: "SSH erişimi kesildi", summary: "Sağlayıcının kurtarma konsolundan SSH servisini ve güvenlik duvarını kontrol et.", detail: "Kurtarma konsolunu kapatmadan önce yeni bir SSH oturumunda bağlantıyı doğrula." },
+    ] },
+  ];
+  const pageButton = (title, action) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = title;
+    button.className = "cursor-interaction";
+    button.addEventListener("click", action);
+    return button;
+  };
+  root.querySelectorAll(".handbook-demo").forEach((demo) => {
+    const header = demo.querySelector("[data-header-nav]");
+    const side = demo.querySelector("[data-side-nav]");
+    const menu = demo.querySelector("details");
+    const article = demo.querySelector("[data-article]");
+    const searchButton = demo.querySelector("[data-search]");
+    searchButton.classList.add("cursor-interaction");
+    if (matchMedia("(max-width: 530px)").matches) menu.open = false;
+    function show(section, entry, focusRegion) {
+      if (header) {
+        const buttons = sections.map((group) => {
+          const button = pageButton(group.nav, () => show(group, group.entries[0], header));
+          button.setAttribute("aria-pressed", String(group === section));
+          return button;
+        });
+        header.replaceChildren(...buttons);
+      }
+      side.replaceChildren();
+      (header ? [section] : sections).forEach((group) => {
+        const label = document.createElement("p");
+        label.textContent = group.title;
+        const items = group.entries.map((item) => {
+          const button = pageButton(item.title, () => show(group, item, side));
+          if (item === entry) button.setAttribute("aria-current", "page");
+          return button;
+        });
+        side.append(label, ...items);
+      });
+      article.replaceChildren();
+      [["p", section.title, "demo-location"], ["h2", entry.title], ["p", entry.summary], ["p", entry.detail]]
+        .forEach(([tag, content, className]) => {
+          const element = document.createElement(tag);
+          if (className) element.className = className;
+          element.textContent = content;
+          article.append(element);
+        });
+      const next = section.entries[section.entries.indexOf(entry) + 1];
+      if (next) {
+        const button = pageButton(next.title, () => {
+          show(section, next, menu.open ? side : null);
+          if (!menu.open) menu.querySelector("summary").focus();
+        });
+        button.classList.add("demo-next");
+        article.append(button);
+      }
+      focusRegion?.querySelector('[aria-pressed="true"], [aria-current="page"]')?.focus();
+    }
+    const dialog = document.createElement("dialog");
+    dialog.setAttribute("aria-label", "Rehberde ara");
+    dialog.innerHTML = `
+      <div class="demo-dialog-heading">
+        <strong>Rehberde ara</strong>
+        <form method="dialog"><button type="submit" class="cursor-interaction">Kapat</button></form>
+      </div>
+      <input type="search" aria-label="Arama terimi" placeholder="Örn. Docker veya SSH">
+      <div data-results aria-live="polite"></div>`;
+    demo.append(dialog);
+    const input = dialog.querySelector("input");
+    const results = dialog.querySelector("[data-results]");
+    function find() {
+      const query = input.value.trim().toLocaleLowerCase("tr");
+      const matches = sections.flatMap((section) => section.entries
+        .filter((entry) => [entry.title, entry.summary].join(" ").toLocaleLowerCase("tr").includes(query))
+        .map((entry) => pageButton(entry.title, () => {
+          show(section, entry);
+          dialog.close();
+        })));
+      results.replaceChildren(...(matches.length ? matches : ["Sonuç bulunamadı."]));
+    }
+    searchButton.addEventListener("click", () => {
+      dialog.showModal();
+      input.focus();
+      find();
+    });
+    input.addEventListener("input", find);
+    show(sections[0], sections[0].entries[0]);
+  });
+})();
+</script>

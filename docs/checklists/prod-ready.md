@@ -2,8 +2,9 @@
 
 Trafiği açmadan önce zorunlu kontrolleri tamamla, varsa riskleri onaya sun ve [yayın kararını](#karar) kaydet. Yayın sonrası [ilk 15 dakika kontrollerini](#post-deploy-15-dakika-kontrolu) uygula.
 
-!!! warning "Komutları kendi ortamına uyarla"
-    `<container>`, `<app-url>` ve `<db-container>` yer tutucularını kendi değerlerinle değiştir. Servis durdurma ve geri yükleme senaryolarını test ortamında çalıştır.
+:::caution[Komutları kendi ortamına uyarla]
+`<container>`, `<app-url>` ve `<db-container>` yer tutucularını kendi değerlerinle değiştir. Servis durdurma ve geri yükleme senaryolarını test ortamında çalıştır.
+:::
 
 ## Zorunlu kontroller { #blocker-kesin-engel }
 
@@ -18,7 +19,7 @@ Bu kontrollerden biri başarısızsa kullanıcı trafiğini açma.
 | **Non-Root** | `docker inspect <container> --format '{{.Config.User}}'` | Çıktı boş olmamalı ve `root` olmamalı. |
 | **Health Endpoint** | `docker inspect <container> --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}missing{{end}}'`<br>`curl -fsS https://<app-url>/healthz` | Container `healthy` olmalı ve dış health endpoint başarılı dönmeli. |
 | **Runtime Hardening** | `docker inspect <container> --format '{{.HostConfig.ReadonlyRootfs}} {{json .HostConfig.SecurityOpt}} {{json .HostConfig.CapDrop}}'` | En azından riskli servislerde read-only rootfs, `no-new-privileges` ve capability düşürme görünmeli. |
-| **Rollback Hazırlığı** | `docker inspect <container> --format '{{.Config.Image}}'`<br>`docker image ls --digests | head` | Çalışan image net olarak tanımlı olmalı; önceki artefact erişilebilir olmalı. |
+| **Rollback Hazırlığı** | `docker inspect <container> --format '{{.Config.Image}}'`<br>`docker image ls --digests \| head` | Çalışan image net olarak tanımlı olmalı; önceki artefact erişilebilir olmalı. |
 | **Failed Units** | `systemctl --failed` | Kritik servis tarafında failed unit görünmemeli. |
 
 ## Onay gerektiren riskler { #warning-riskli-gecis }
@@ -32,7 +33,7 @@ Bu maddeler eksikse Manager onayı ile geçilebilir ama 24 saat içinde düzelti
 | **Performance** | `wrk -t2 -c50 -d30s https://<app-url>/healthz` | Hedef yükte P99 latency hedefi karşılanmalı; hata oranı kabul edilebilir seviyede kalmalı. |
 | **Fallbacks** | `docker stop <db-container>`<br>`curl -I https://<app-url>` | Staging ortamında DB yokken kullanıcıya kontrollü hata/bakım cevabı dönmeli; uygulama crash olmamalı. |
 | **Disk / Inode** | `df -h /`<br>`df -i /` | Disk ve inode kullanımı alarm eşiğinin altında kalmalı. |
-| **Rate Limit / Abuse Guard** | `curl -I https://<app-url>`<br>`nginx -T | rg 'limit_req|limit_conn'` | Public girişte temel abuse/rate-limit katmanı görünmeli. |
+| **Rate Limit / Abuse Guard** | `curl -I https://<app-url>`<br>`nginx -T \| rg 'limit_req\|limit_conn'` | Public girişte temel abuse/rate-limit katmanı görünmeli. |
 | **Image Scan** | `trivy image <image:tag>` | Bilinen HIGH/CRITICAL açıklar yönetilmiş veya kabul edilmiş olmalı. |
 
 ## İyileştirme alanları { #good-to-have-iyilestirme }
@@ -41,7 +42,7 @@ Bu maddeler eksikse Manager onayı ile geçilebilir ama 24 saat içinde düzelti
 | :------ | :------------ | :------------- |
 | **CDN** | `curl -I https://<app-url>/assets/app.js` | `server`, `cf-cache-status`, `x-cache` gibi CDN/cache header'ları görünmeli. |
 | **CI/CD** | `gh workflow list`<br>`gh run list --limit 5` | Deploy pipeline tanımlı olmalı ve son koşuların durumu görülebilmeli. |
-| **Docs** | `rg -n 'TODO|TBD|FIXME' docs/runbooks docs/how-to docs/checklists` | Kritik runbook/checklist sayfalarında açık TODO kalmamalı. |
+| **Docs** | `rg -n 'TODO\|TBD\|FIXME' docs/runbooks docs/how-to docs/checklists` | Kritik runbook/checklist sayfalarında açık TODO kalmamalı. |
 | **Change Record** | `git log --oneline -n 5` | Release'e giren commit seti izlenebilir olmalı. |
 | **Security Baseline** | `lynis audit system --quick` | Ağır kritik bulgu görünmemeli veya risk kabulü net olmalı. |
 

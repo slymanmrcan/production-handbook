@@ -1,4 +1,10 @@
-# Kernel Hardening (Sysctl)
+---
+title: Kernel Hardening (Sysctl)
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<span id="kernel-hardening-sysctl" aria-hidden="true"></span>
 
 Bu bölüm, Linux çekirdeğini (kernel) ağ saldırılarına ve yetki yükseltme (privilege escalation) girişimlerine karşı "çelik yelek" giydirmeyi hedefler.
 
@@ -84,104 +90,109 @@ echo "✅ Geçici ayarlar uygulandı. Şimdi SSH ve servisleri test edin!"
 
 Testler başarılıysa ayarları kalıcı yapalım. Durumunuza uygun profili seçin:
 
-=== "🅰️ Senaryo A: Sade Sunucu (Docker YOK)"
+<Tabs>
+<TabItem label="🅰️ Senaryo A: Sade Sunucu (Docker YOK)">
 
-    Docker, Kubernetes veya VPN **KULLANMIYORSANIZ** bu en güvenli profildir. `IP Forwarding` kapatılır.
+Docker, Kubernetes veya VPN **KULLANMIYORSANIZ** bu en güvenli profildir. `IP Forwarding` kapatılır.
 
-    ```bash
-    sudo tee /etc/sysctl.d/99-hardening.conf << 'EOF'
-    # ==============================================
-    # NETWORK SAFETY - SADE SUNUCU (NO DOCKER)
-    # ==============================================
+```bash
+sudo tee /etc/sysctl.d/99-hardening.conf << 'EOF'
+# ==============================================
+# NETWORK SAFETY - SADE SUNUCU (NO DOCKER)
+# ==============================================
 
-    # IP Forwarding KAPAT (Docker yoksa güvenli)
-    net.ipv4.conf.all.forwarding = 0
-    net.ipv6.conf.all.forwarding = 0
+# IP Forwarding KAPAT (Docker yoksa güvenli)
+net.ipv4.conf.all.forwarding = 0
+net.ipv6.conf.all.forwarding = 0
 
-    # IP Spoofing & Source Routing
-    net.ipv4.conf.all.rp_filter = 1
-    net.ipv4.conf.default.rp_filter = 1
-    net.ipv4.conf.all.accept_source_route = 0
-    net.ipv4.conf.default.accept_source_route = 0
+# IP Spoofing & Source Routing
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
 
-    # ICMP Redirect Kapat
-    net.ipv4.conf.all.accept_redirects = 0
-    net.ipv4.conf.default.accept_redirects = 0
-    net.ipv4.conf.all.secure_redirects = 0
-    net.ipv4.conf.default.secure_redirects = 0
+# ICMP Redirect Kapat
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.all.secure_redirects = 0
+net.ipv4.conf.default.secure_redirects = 0
 
-    # TCP SYN Flood & Keepalive
-    net.ipv4.tcp_syncookies = 1
-    net.ipv4.tcp_max_syn_backlog = 2048
-    net.ipv4.tcp_synack_retries = 2
-    net.ipv4.tcp_keepalive_time = 600
+# TCP SYN Flood & Keepalive
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_max_syn_backlog = 2048
+net.ipv4.tcp_synack_retries = 2
+net.ipv4.tcp_keepalive_time = 600
 
-    # ICMP Rate Limiting
-    net.ipv4.icmp_ratelimit = 100
+# ICMP Rate Limiting
+net.ipv4.icmp_ratelimit = 100
 
-    # ==============================================
-    # KERNEL SAFETY
-    # ==============================================
-    kernel.dmesg_restrict = 1
-    kernel.yama.ptrace_scope = 1
-    fs.suid_dumpable = 0
-    kernel.kptr_restrict = 2
-    kernel.sysrq = 176
-    dev.tty.ldisc_autoload = 0
-    net.core.bpf_jit_harden = 2
-    kernel.unprivileged_bpf_disabled = 1
-    kernel.perf_event_paranoid = 3
-    EOF
-    ```
+# ==============================================
+# KERNEL SAFETY
+# ==============================================
+kernel.dmesg_restrict = 1
+kernel.yama.ptrace_scope = 1
+fs.suid_dumpable = 0
+kernel.kptr_restrict = 2
+kernel.sysrq = 176
+dev.tty.ldisc_autoload = 0
+net.core.bpf_jit_harden = 2
+kernel.unprivileged_bpf_disabled = 1
+kernel.perf_event_paranoid = 3
+EOF
+```
 
-=== "🅱️ Senaryo B: Docker/Kubernetes Sunucusu"
+</TabItem>
+<TabItem label="🅱️ Senaryo B: Docker/Kubernetes Sunucusu">
 
-    Docker veya Kubernetes **KULLANIYORSANIZ** bu profili kullanın. `IP Forwarding` açık bırakılır.
+Docker veya Kubernetes **KULLANIYORSANIZ** bu profili kullanın. `IP Forwarding` açık bırakılır.
 
-    ```bash
-    sudo tee /etc/sysctl.d/99-hardening.conf << 'EOF'
-    # ==============================================
-    # NETWORK SAFETY - DOCKER/K8S PROFİLİ
-    # ==============================================
+```bash
+sudo tee /etc/sysctl.d/99-hardening.conf << 'EOF'
+# ==============================================
+# NETWORK SAFETY - DOCKER/K8S PROFİLİ
+# ==============================================
 
-    # ⚠️ IP Forwarding AÇIK KALMALI (Yoksa Container'lar bozulur!)
-    # net.ipv4.conf.all.forwarding = 1
+# ⚠️ IP Forwarding AÇIK KALMALI (Yoksa Container'lar bozulur!)
+# net.ipv4.conf.all.forwarding = 1
 
-    # IP Spoofing & Source Routing
-    net.ipv4.conf.all.rp_filter = 1
-    net.ipv4.conf.default.rp_filter = 1
-    net.ipv4.conf.all.accept_source_route = 0
-    net.ipv4.conf.default.accept_source_route = 0
+# IP Spoofing & Source Routing
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
 
-    # ICMP Redirect Kapat
-    net.ipv4.conf.all.accept_redirects = 0
-    net.ipv4.conf.default.accept_redirects = 0
-    net.ipv4.conf.all.secure_redirects = 0
-    net.ipv4.conf.default.secure_redirects = 0
+# ICMP Redirect Kapat
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.all.secure_redirects = 0
+net.ipv4.conf.default.secure_redirects = 0
 
-    # TCP SYN Flood & Keepalive
-    net.ipv4.tcp_syncookies = 1
-    net.ipv4.tcp_max_syn_backlog = 2048
-    net.ipv4.tcp_synack_retries = 2
-    net.ipv4.tcp_keepalive_time = 600
+# TCP SYN Flood & Keepalive
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_max_syn_backlog = 2048
+net.ipv4.tcp_synack_retries = 2
+net.ipv4.tcp_keepalive_time = 600
 
-    # ICMP Rate Limiting
-    net.ipv4.icmp_ratelimit = 100
+# ICMP Rate Limiting
+net.ipv4.icmp_ratelimit = 100
 
-    # ==============================================
-    # KERNEL SAFETY
-    # ==============================================
-    kernel.dmesg_restrict = 1
-    kernel.yama.ptrace_scope = 1
-    fs.suid_dumpable = 0
-    kernel.kptr_restrict = 2
-    kernel.sysrq = 176
-    dev.tty.ldisc_autoload = 0
-    net.core.bpf_jit_harden = 2
-    kernel.unprivileged_bpf_disabled = 1
-    kernel.perf_event_paranoid = 3
-    EOF
-    ```
+# ==============================================
+# KERNEL SAFETY
+# ==============================================
+kernel.dmesg_restrict = 1
+kernel.yama.ptrace_scope = 1
+fs.suid_dumpable = 0
+kernel.kptr_restrict = 2
+kernel.sysrq = 176
+dev.tty.ldisc_autoload = 0
+net.core.bpf_jit_harden = 2
+kernel.unprivileged_bpf_disabled = 1
+kernel.perf_event_paranoid = 3
+EOF
+```
+
+</TabItem>
+</Tabs>
 
 ## 3. Aktifleştirme
 

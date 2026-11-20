@@ -7,7 +7,7 @@
 **Goal:** Maintain a "Senior SRE Level" documentation and automation suite for Linux Server (Ubuntu/Debian) provisioning, designed for both human operators and **AI-Based Development** workflows.
 **Philosophy:** "Plug-and-Play", "Secure by Default", "No Fluff (Direct & Actionable)", "Verify Everything".
 **Target User:** DevOps Engineers, System Admins, and Developers building and deploying production servers with AI-assisted engineering workflows.
-**Primary Output:** A high-quality MkDocs static site + Executable Bash Script library + AI-Based Development infrastructure contracts.
+**Primary Output:** A high-quality Astro Starlight static site + Executable Bash Script library + AI-Based Development infrastructure contracts.
 
 ---
 
@@ -17,8 +17,8 @@
 
 | Component                | Technology / Version Pin         | Role / Constraint                                                         |
 | :----------------------- | :------------------------------- | :------------------------------------------------------------------------ |
-| **Documentation Engine** | MkDocs `>=1.6.1,<2.0` + Material `>=9.7,<10.0` | **CRITICAL:** Keep `mkdocs <2.0` (2.0 breaks Material). Pinned in `requirements.txt`. |
-| **Site CI/CD Pipeline**  | GitHub Actions                   | `.github/workflows/build.yml` (`main` → `--strict` build → `gh-pages`).   |
+| **Documentation Engine** | Astro 7 + Starlight, Node.js 24 in CI | Exact versions are locked in `package-lock.json`. |
+| **Site CI/CD Pipeline**  | GitHub Actions                   | `.github/workflows/build.yml` (`main` → `npm run build` → GitHub Pages).   |
 | **Target Server Stack**  | Ubuntu `22.04/24.04 LTS`, Debian `12`, Docker + Compose v2 (`docker compose`) | Never use legacy `docker-compose` v1, `:latest`, or deprecated `apt-key`. |
 | **Automation Engine**    | Bash Scripts                     | Native, Zero-Dependency (`set -Eeuo pipefail`). Location: `docs/scripts/library`. |
 | **AI-Based Dev Layer**   | Contracts & Audit Gates          | Location: `docs/ai-dev/`. Keeps AI coding aligned with prod infra.        |
@@ -27,7 +27,7 @@
 ### Language & UI Conventions
 
 - **Language:** Main handbook (`docs/`) is **Turkish** (technical terms, CLI commands, and config keys in English). `docs/android/` is **English** (preserved).
-- **Styling:** Custom design system lives in `docs/stylesheets/extra.css` (dark `slate` default + light `default`). Use standard Markdown + Material extensions (`mermaid`, `tabbed`, `admonition`) for regular guides; reserve `.sh-*` HTML classes for portal/landing pages. Avoid ad-hoc inline styles.
+- **Styling:** Use Starlight’s shared styles in `src/handbook.css`, standard Markdown, Starlight asides, Mermaid, and MDX tabs when needed. Keep page-specific style in scoped Astro components.
 
 ---
 
@@ -47,7 +47,8 @@ Any code, config, recipe, or example added to this repo MUST comply with these r
 
 ### Core Configuration
 
-- `mkdocs.yml`: **[CRITICAL]** Central navigation map (6 main tabs + preserved `android/`). Every new markdown file MUST be linked here.
+- `astro.config.mjs`: Starlight configuration, static output, and GitHub Pages base path.
+- `src/navigation.mjs`: Rehber, Referans, and Olay müdahalesi. Link every new guide here.
 - `.gitignore`: Controls build artifacts and internal product specs.
 
 ### Functional Directories (`docs/`)
@@ -74,7 +75,7 @@ Any code, config, recipe, or example added to this repo MUST comply with these r
 
 1. Check existing directories to avoid duplicating a topic across `how-to/`, `recipes/`, and `file-templates/`. Follow the strict role separation in Section 4.
 2. Create the file in the appropriate subdirectory.
-3. **IMMEDIATELY** add the link to `mkdocs.yml` navigation.
+3. **IMMEDIATELY** add the page to `src/navigation.mjs`.
 4. Ensure the guide includes concrete **Verification** commands.
 
 ### SOP-002: Updating Scripts
@@ -97,13 +98,13 @@ Any code, config, recipe, or example added to this repo MUST comply with these r
 
 1. Before completing any documentation, navigation, or styling change, run:
    ```bash
-   .venv/bin/mkdocs build --strict
+   npm run build
    ```
-2. Fix every warning, broken link, or unreferenced file before finishing. Do not commit generated `site/` output.
+2. Fix every warning, broken link, or unreferenced file before finishing. Do not commit generated `dist/` output.
 
 ---
 
 ## 6. 🧠 MEMORY & CONTEXT (Current State)
 
-- **Latest Upgrade:** Reorganized navigation into a streamlined Day 0 → Day 1 → Day 2 lifecycle, split Security into Mandatory Baseline vs Advanced, added `docs/getting-started/roadmap.md`, introduced `docs/ai-dev/`, and added pinned `requirements.txt` + `DEVELOPMENT.md` + CI `--strict` build gate.
+- **Latest Upgrade:** Migrated the static site to Astro Starlight with a contextual sidebar and CI checks for generated pages, sidebar coverage, and internal links. The Day 0 → Day 1 → Day 2 roadmap and AI development guides are the main entry points for their workflows.
 - **Preserved Scope:** `docs/android/` remains intact and untouched.

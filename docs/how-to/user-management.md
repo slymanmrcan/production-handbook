@@ -255,4 +255,4 @@ Bu hatayı alıyorsanız işlem başarılıdır. Kullanıcı giriş yapabilir am
 | Sudo policy | `sudo -l -U aliops` | Beklenen yetki görünmeli |
 | SSH key izinleri | `namei -l /home/aliops/.ssh/authorized_keys` | Dizin ve dosya izinleri güvenli olmalı |
 | Kilitli hesap durumu | `passwd -S hedef_kullanici` | Hesap durumu okunabilmeli |
-| Son girişler | `last | head` | Beklenen kullanıcı hareketleri görünmeli |
+| Son girişler | `last \| head` | Beklenen kullanıcı hareketleri görünmeli |

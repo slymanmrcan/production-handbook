@@ -20,12 +20,12 @@ Dosya: `/etc/ssh/sshd_config`
 
 | Parametre                | Değer  | Neden?                               | Doğrulama |
 | :----------------------- | :----- | :----------------------------------- | :--------- |
-| `PermitRootLogin`        | `no`   | Root brute-force engellemek için.    | `sshd -T | grep -E '^permitrootlogin no$'` çıktısı dönmeli. |
-| `PasswordAuthentication` | `no`   | Sadece Key ile giriş.                | `sshd -T | grep -E '^passwordauthentication no$'` çıktısı dönmeli. |
-| `PubkeyAuthentication`   | `yes`  | Key tabanlı erişim zorunlu.          | `sshd -T | grep -E '^pubkeyauthentication yes$'` çıktısı dönmeli. |
-| `PermitEmptyPasswords`   | `no`   | Güvenlik.                            | `sshd -T | grep -E '^permitemptypasswords no$'` çıktısı dönmeli. |
-| `Port`                   | `2222` | (Opsiyonel) Log kirliliğini azaltır. | `sshd -T | grep -E '^port 2222$'` ve `ss -tulpn | grep ':2222 '` çıktısı dönmeli. |
-| `AllowUsers`             | `deployer` | Yetkisiz kullanıcı girişini kesmek için. | `sshd -T | grep -E '^allowusers deployer$'` çıktısı dönmeli. |
+| `PermitRootLogin`        | `no`   | Root brute-force engellemek için.    | `sshd -T \| grep -E '^permitrootlogin no$'` çıktısı dönmeli. |
+| `PasswordAuthentication` | `no`   | Sadece Key ile giriş.                | `sshd -T \| grep -E '^passwordauthentication no$'` çıktısı dönmeli. |
+| `PubkeyAuthentication`   | `yes`  | Key tabanlı erişim zorunlu.          | `sshd -T \| grep -E '^pubkeyauthentication yes$'` çıktısı dönmeli. |
+| `PermitEmptyPasswords`   | `no`   | Güvenlik.                            | `sshd -T \| grep -E '^permitemptypasswords no$'` çıktısı dönmeli. |
+| `Port`                   | `2222` | (Opsiyonel) Log kirliliğini azaltır. | `sshd -T \| grep -E '^port 2222$'` ve `ss -tulpn \| grep ':2222 '` çıktısı dönmeli. |
+| `AllowUsers`             | `deployer` | Yetkisiz kullanıcı girişini kesmek için. | `sshd -T \| grep -E '^allowusers deployer$'` çıktısı dönmeli. |
 
 > **Not:** Değişiklikten sonra `sshd -t` (Test Config) yapmadan servisi restart etmeyin!
 

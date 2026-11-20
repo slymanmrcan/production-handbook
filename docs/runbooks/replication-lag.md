@@ -105,7 +105,7 @@ Lag saatler seviyesindeyse veya replication bozulmuşsa replica'yı yeniden seed
 | Replica recovery | `psql -c "select pg_is_in_recovery();"` | `t` dönmeli |
 | Postgres lag | `psql -c "select now() - pg_last_xact_replay_timestamp();"` | Kabul edilebilir seviyede olmalı |
 | MySQL lag | `mysql -e "SHOW REPLICA STATUS\\G"` | `Seconds_Behind_Master` düşük olmalı |
-| Thread status | `mysql -e "SHOW REPLICA STATUS\\G" | rg 'Replica_IO_Running|Replica_SQL_Running'` | İki thread de çalışmalı |
+| Thread status | `mysql -e "SHOW REPLICA STATUS\\G" \| rg 'Replica_IO_Running\|Replica_SQL_Running'` | İki thread de çalışmalı |
 | Host sağlığı | `df -h && free -h` | Disk ve memory pressure olmamalı |
 
 ## 7. Escalation Kriterleri

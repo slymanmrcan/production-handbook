@@ -38,7 +38,7 @@ Bu çıktıların amacı:
 | RAM tüketimi | `ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem \| head -10` | büyüyen süreçler |
 | Swap baskısı | `vmstat 1` | `si` ve `so` değerleri |
 | Genel durum | `free -h` | `available` alanı |
-| OOM izi | `journalctl -k -b --no-pager \| rg -i 'oom|out of memory|killed process'` | kernel kill mesajı |
+| OOM izi | `journalctl -k -b --no-pager \| rg -i 'oom\|out of memory\|killed process'` | kernel kill mesajı |
 
 ## Disk ve IO
 

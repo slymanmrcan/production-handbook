@@ -1,0 +1,20 @@
+---
+import StarlightSidebar from '@astrojs/starlight/components/Sidebar.astro';
+import SectionLinks from './SectionLinks.astro';
+---
+
+<div class="mobile-sections"><SectionLinks /></div>
+<StarlightSidebar />
+
+<style>
+  .mobile-sections {
+    margin-block-end: 1rem;
+    padding-block-end: 0.75rem;
+    border-bottom: 1px solid var(--sl-color-hairline-light);
+  }
+  @media (min-width: 50rem) {
+    .mobile-sections {
+      display: none;
+    }
+  }
+</style>

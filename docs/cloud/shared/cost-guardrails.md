@@ -162,7 +162,7 @@ apt clean
 | Host disk | `df -h` | Beklenmeyen doluluk olmamalı |
 | Docker cache | `docker system df` | İmaj ve cache büyümesi kontrol altında olmalı |
 | Journal boyutu | `journalctl --disk-usage` | Loglar sınırsız büyümemeli |
-| Orphan kaynak taraması | `rg -n "public.?ip|reserved|elastic|floating|snapshot|volume|disk|nat|gateway" . --glob '!site/**'` | IaC / repo içinde eski referanslar bulunmalı |
+| Orphan kaynak taraması | `rg -n "public.?ip\|reserved\|elastic\|floating\|snapshot\|volume\|disk\|nat\|gateway" . --glob '!site/**'` | IaC / repo içinde eski referanslar bulunmalı |
 | Budget / quota | Console | Budget ve quota alarmı aktif olmalı |
 
 ## 10. No-Go Durumları

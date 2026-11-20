@@ -2,10 +2,11 @@
 
 Ubuntu/Debian sunucusunda tanınmayan bir başarılı giriş, beklenmeyen root yetkisi, yeni SSH anahtarı, servis veya bağlantı gördüğünüzde bu runbook'u açın. Zamanı UTC olarak kaydedin ve olay boyunca aynı zaman aralığını kullanın.
 
-!!! warning "İlk karar"
-    Yetkisiz erişime veya devam eden veri aktarımına dair güçlü bulgu varsa, güvenilir bir yönetim konsolundan sunucunun giriş ve çıkış trafiğini izole edin. Yönetim erişimini konsol ya da kontrollü inceleme ağı üzerinden koruyun. Load balancer'dan çıkarmak tek başına ağ izolasyonu sağlamaz.
+:::caution[İlk karar]
+Yetkisiz erişime veya devam eden veri aktarımına dair güçlü bulgu varsa, güvenilir bir yönetim konsolundan sunucunun giriş ve çıkış trafiğini izole edin. Yönetim erişimini konsol ya da kontrollü inceleme ağı üzerinden koruyun. Load balancer'dan çıkarmak tek başına ağ izolasyonu sağlamaz.
 
-    İlk incelemede süreç öldürme, restart, reboot, paket veya tarayıcı kurulumu, log temizliği ve bütünlük referansını yenileme işlemlerini erteleyin. Ağ izolasyonu mümkün değilse ve aktif zarar sürüyorsa, olay sorumlusu müdahalenin etkisini ve uçucu kanıt kaybını birlikte değerlendirmelidir.
+İlk incelemede süreç öldürme, restart, reboot, paket veya tarayıcı kurulumu, log temizliği ve bütünlük referansını yenileme işlemlerini erteleyin. Ağ izolasyonu mümkün değilse ve aktif zarar sürüyorsa, olay sorumlusu müdahalenin etkisini ve uçucu kanıt kaybını birlikte değerlendirmelidir.
+:::
 
 ## 1. Giriş Kayıtları ve Yetkiler
 

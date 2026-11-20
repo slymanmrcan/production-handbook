@@ -150,8 +150,8 @@ Cloud console veya secret manager içinde şu kontroller gerekir:
 
 | Kontrol | Komut / İşlem | Beklenen Sonuç |
 | :------ | :------------ | :------------- |
-| Repo'da secret taraması | `rg -n "password|secret|token|apikey|private_key|BEGIN .* PRIVATE KEY" . --glob '!site/**'` | Beklenmeyen secret görünmemeli |
-| Shell history kontrolü | `history | tail -n 50` | Hassas komutlar history'de olmamalı |
+| Repo'da secret taraması | `rg -n "password\|secret\|token\|apikey\|private_key\|BEGIN .* PRIVATE KEY" . --glob '!site/**'` | Beklenmeyen secret görünmemeli |
+| Shell history kontrolü | `history \| tail -n 50` | Hassas komutlar history'de olmamalı |
 | Secret dosya izinleri | `stat -c '%a %U %G %n' /etc/myapp/* 2>/dev/null` | 0400/0600 ve doğru owner görünmeli |
 | Runtime secret mount | `find /run/secrets -maxdepth 1 -type f -exec stat -c '%a %U %G %n' {} \;` | Secret mount'lar sıkı izinli olmalı |
 | Cloud secret policy | Console | Versioning, revoke ve audit log açık olmalı |

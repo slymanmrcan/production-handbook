@@ -136,7 +136,7 @@ Beklenen:
 | :------ | :------------ | :------------- |
 | Root hesabı kontrolü | Console | Root üzerinde MFA açık olmalı, key olmamalı |
 | Admin ayrımı | Console | İnsan hesapları ile servis hesapları ayrı olmalı |
-| Local secret sızıntı taraması | `rg -n "AKIA|BEGIN .* PRIVATE KEY|secret|token|password" ~/.aws ~/.oci ~/.config/gcloud ~/.ssh 2>/dev/null` | Beklenmeyen secret görünmemeli |
+| Local secret sızıntı taraması | `rg -n "AKIA\|BEGIN .* PRIVATE KEY\|secret\|token\|password" ~/.aws ~/.oci ~/.config/gcloud ~/.ssh 2>/dev/null` | Beklenmeyen secret görünmemeli |
 | SSH key izinleri | `stat -c '%a %U %G %n' ~/.ssh/id_* 2>/dev/null` | Key dosyaları sıkı izinli olmalı |
 | Cloud config izi | `find ~/.config -maxdepth 3 -type f \( -name 'config' -o -name 'credentials' -o -name '*.json' \)` | Hangi kimlik dosyalarının kullanıldığı bilinmeli |
 

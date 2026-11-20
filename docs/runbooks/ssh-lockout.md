@@ -2,8 +2,9 @@
 
 Sunucuya SSH ile erişemediğinizde uygulayacağınız kurtarma (recovery) protokolü.
 
-!!! warning "Yetkisiz erişim şüphesi"
-    SSH erişimi beklenmeyen bir değişiklikle kesildiyse önce [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md) rehberindeki kanıt koruma adımlarını kullanın.
+:::caution[Yetkisiz erişim şüphesi]
+SSH erişimi beklenmeyen bir değişiklikle kesildiyse önce [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md) rehberindeki kanıt koruma adımlarını kullanın.
+:::
 
 > [!WARNING]
 > Bu adımlar sunucu sağlayıcınızın yönetim paneline erişim gerektirir.

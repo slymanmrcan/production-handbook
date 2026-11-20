@@ -132,5 +132,5 @@ Secret gerektiren restore/backup işlerinde password'u komut satırına yazma; `
 | Container hazır mı | `docker inspect <container> --format '{{.State.Running}}'` | `true` dönmeli |
 | Backup dosyası üretildi mi | `ls -lh /var/backups/db/` | Tarihli `.sql.gz` dosyası görünmeli |
 | Gzip sağlam mı | `gzip -t /var/backups/db/db-*.sql.gz` | Dosya bütünlüğü geçmeli |
-| Restore doğrulandı mı | `gunzip -c ... | psql -v ON_ERROR_STOP=1 ...` | Dump geri yüklenmeli |
+| Restore doğrulandı mı | `gunzip -c ... \| psql -v ON_ERROR_STOP=1 ...` | Dump geri yüklenmeli |
 | Rotasyon çalıştı mı | `find /var/backups/db -mtime +7` | Eski dosyalar temizlenmeli |

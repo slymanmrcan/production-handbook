@@ -129,6 +129,6 @@ sudo ufw reload
 | Servis ayakta mi | `systemctl is-active sshguard` | `active` |
 | Loglar geliyor mu | `journalctl -u sshguard -b -n 50 --no-pager` | Ban ve izleme kayitlari gorunmeli |
 | Firewall backend aktif mi | `sudo ufw status numbered` veya `sudo nft list ruleset` | Kurallar gorunmeli |
-| Whitelist calisiyor mu | `journalctl -u sshguard -b | rg -i whitelist` | Allowlisted IP'ler ban yememeli |
+| Whitelist calisiyor mu | `journalctl -u sshguard -b \| rg -i whitelist` | Allowlisted IP'ler ban yememeli |
 | Test ban calisiyor mu | Test host'tan hatali SSH denemesi | Geçici blok uygulanmali |
 

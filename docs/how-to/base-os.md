@@ -2,8 +2,9 @@
 
 Yeni Ubuntu veya Debian sunucuna [SSH ile bağlan](#1-ilk-baglant-ssh), sistemi güncelle ve günlük yönetim için bir sudo hesabı hazırla.
 
-!!! info "Bağlanmadan önce"
-    Sunucunun IP adresini ve başlangıç hesabını sağlayıcı panelinden kontrol et. Ağ veya SSH ayarlarını değiştirirken kurtarma konsoluna erişebildiğinden emin ol.
+:::note[Bağlanmadan önce]
+Sunucunun IP adresini ve başlangıç hesabını sağlayıcı panelinden kontrol et. Ağ veya SSH ayarlarını değiştirirken kurtarma konsoluna erişebildiğinden emin ol.
+:::
 
 ---
 

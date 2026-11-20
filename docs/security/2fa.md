@@ -134,7 +134,7 @@ Eger kendi oturumunu kilitlediysen, console uzerinden yukaridaki rollback'i uygu
 | Kontrol | Komut | Beklenen Sonuc |
 | :------ | :---- | :------------- |
 | SSHD config parse oluyor mu | `sudo sshd -t` | Hata olmamali |
-| Aktif policy gorunuyor mu | `sshd -T | rg 'usepam|kbdinteractiveauthentication|passwordauthentication|authenticationmethods'` | Kural seti gorunmeli |
+| Aktif policy gorunuyor mu | `sshd -T \| rg 'usepam\|kbdinteractiveauthentication\|passwordauthentication\|authenticationmethods'` | Kural seti gorunmeli |
 | Servis reload oldu mu | `systemctl status ssh --no-pager -l` | `active (running)` |
 | Ikinci terminalden giris calisiyor mu | `ssh -vvv kullanici@sunucu` | Key + TOTP akisi gorunmeli |
 | Log kaydi geliyor mu | `journalctl -u ssh -b -n 100 --no-pager` | Yetkilendirme denemeleri gorunmeli |

@@ -2,8 +2,9 @@
 
 Bu runbook, CPU kullanimi aniden arttiginda uygulanir. CPU spike bazen deploy bug'i, bazen de log, retry veya worker patlamasidir.
 
-!!! warning "Beklenmeyen süreç veya erişim"
-    Tanımadığınız bir süreç, servis, dış bağlantı veya başarılı giriş de görülüyorsa önce [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md) rehberine geçin. Süreç ve bağlantı bilgilerini restart veya durdurma öncesinde kaydedin.
+:::caution[Beklenmeyen süreç veya erişim]
+Tanımadığınız bir süreç, servis, dış bağlantı veya başarılı giriş de görülüyorsa önce [Şüpheli Sunucu ve Yetkisiz Erişim](suspected-compromise.md) rehberine geçin. Süreç ve bağlantı bilgilerini restart veya durdurma öncesinde kaydedin.
+:::
 
 ## 1. Etki ve Belirtiler
 

@@ -197,7 +197,7 @@ Bu script'in çıktısı bir "checklist" değil, bir drift sinyalidir. Aşağıd
 | :------ | :---- | :------------- |
 | Syntax doğru mu | `bash -n audit.sh` | Parse hatası olmamalı |
 | Lint temiz mi | `shellcheck audit.sh` | Kritik hata olmamalı |
-| SSH hardening görünür mü | `sshd -T | rg 'permitrootlogin|passwordauthentication'` | Beklenen değerler dönmeli |
+| SSH hardening görünür mü | `sshd -T \| rg 'permitrootlogin\|passwordauthentication'` | Beklenen değerler dönmeli |
 | Dinleyen portlar okunuyor mu | `ss -H -tulpn` | Aktif portlar listelenmeli |
 | UFW aktif mi | `ufw status verbose` | Beklenen firewall durumu görünmeli |
 | Fail2Ban çalışıyor mu | `systemctl is-active fail2ban` | `active` ya da bilinçli yokluk görünmeli |

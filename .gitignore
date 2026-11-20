@@ -1,5 +1,8 @@
-# MkDocs build output
+# Generated site and local dependencies
 site/
+dist/
+.astro/
+node_modules/
 
 # Python
 __pycache__/

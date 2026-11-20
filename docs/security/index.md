@@ -2,8 +2,9 @@
 
 Bu bölüm tek bir ürün ya da tek bir ayar seti değil. Amaç, güvenliği bir operasyon modeli olarak kurmak: önce erişimi kapat, sonra host'u sertleştir, sonra değişikliği ve anomaliyi ölç, en son compliance ve fleet tooling katmanına geç.
 
-!!! warning "Sunucuda yetkisiz erişimden şüpheleniyorsanız"
-    İlk kontroller, kanıt koruma ve izolasyon için [Şüpheli Sunucu ve Yetkisiz Erişim](../runbooks/suspected-compromise.md) rehberinden başlayın.
+:::caution[Sunucuda yetkisiz erişimden şüpheleniyorsanız]
+İlk kontroller, kanıt koruma ve izolasyon için [Şüpheli Sunucu ve Yetkisiz Erişim](../runbooks/suspected-compromise.md) rehberinden başlayın.
+:::
 
 ## Bu Sayfa Ne Zaman Kullanılır
 

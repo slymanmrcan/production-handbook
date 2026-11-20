@@ -156,7 +156,7 @@ Alert metrikleri:
 | Servis ayağa kalktı mı | `systemctl status app --no-pager` | `active (running)` |
 | Sağlık kontrolü | `curl -fsS https://<app>/healthz` | 200/healthy |
 | Son sürüm aktif mi | `git rev-parse --short HEAD` veya image tag kontrolü | Beklenen stabil sürüm |
-| Hata logu azaldı mı | `journalctl -u app --since "10 min ago" | rg 'error|exception'` | Yeni hata artışı olmamalı |
+| Hata logu azaldı mı | `journalctl -u app --since "10 min ago" \| rg 'error\|exception'` | Yeni hata artışı olmamalı |
 | Kullanici akışı | `curl -I https://<app>/` | Beklenen HTTP status |
 
 ## 9. Escalation Kriterleri

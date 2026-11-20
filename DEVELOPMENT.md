@@ -6,35 +6,20 @@ Bu dosya, **Sunucu Kurulum El Kitabı** reposunun kendisini geliştirmek, bakım
 
 ---
 
-## 1. Ortam & Versiyon Sınırları
+## 1. Ortam
 
-Bağımlılıklar [`requirements.txt`](requirements.txt) içinde pinlenmiştir.
+CI Node.js 24 kullanır. Kurulum için Node.js en az `22.23.4` olmalıdır. Astro ve Starlight sürümleri [`package-lock.json`](package-lock.json) ile kilitlenir.
 
-| Araç / Paket | Versiyon Sınırı | Not / Kısıt |
-| :--- | :--- | :--- |
-| **Python** | `>=3.10` (CI: `3.12`, Lokal test: `3.14`) | Virtual environment (`.venv/`) kullanın. |
-| **MkDocs** | `>=1.6.1,<2.0` | **KRİTİK:** MkDocs `2.0` plugin ve tema sistemini kırdığı için `<2.0` sınırı zorunludur. |
-| **Material for MkDocs** | `>=9.7.0,<10.0` | Tema (`mkdocs.yml` -> `theme.name: material`). |
-| **pymdown-extensions** | `>=10.0,<13.0` | Superfences (Mermaid), tabbed, highlight ve details için gerekli. |
-
----
-
-## 2. Lokal Kurulum & Doğrulama Komutları
+## 2. Yerel geliştirme
 
 ```bash
-# 1. Sanal ortam oluştur ve bağımlılıkları kur
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 2. Canlı önizleme (http://127.0.0.1:8000)
-mkdocs serve
-
-# 3. Zorunlu doğrulama (kırık link, eksik nav veya markdown hatasında fail eder)
-mkdocs build --strict
+npm ci
+npm run dev
+npm run build
+npm run preview
 ```
 
-> **Kural:** Her değişiklikten sonra (commit / PR öncesi) `mkdocs build --strict` komutu **0 hata ve 0 kırık link** ile geçmelidir.
+Geliştirme sunucusu rehberi `http://localhost:4321/production-handbook/` adresinde açar. `npm run build` statik çıktıyı üretir ve dahili bağlantıları, başlık bağlantılarını ve yan menü kapsamını kontrol eder. Yayınlanmış aramayı yerelde denemek için derlemeden sonra `npm run preview` kullanın.
 
 ---
 
@@ -57,9 +42,9 @@ Dokümanlarda, reçetelerde ve şablonlarda tutarlılık için aşağıdaki hede
 ## 4. Dizin Sınırları & Dokunulmaması Gerekenler
 
 - **`docs/`**: Yalnızca canlı sitede yayınlanacak son kullanıcı dokümanları bulunur. Repo-içi geliştirme dosyaları (`AGENTS.md`, `DEVELOPMENT.md`, `requirements.txt`) **repo kökünde** tutulur.
-- **`mkdocs.yml`**: Merkezi navigasyon haritasıdır. `docs/` altına eklenen her yeni `.md` dosyası `nav:` altına eklenmelidir.
+- **`src/navigation.mjs`**: Üst menüyü ve bölüme göre görünen yan menüyü tanımlar. Yeni rehberleri ilgili bölüme ekleyin.
 - **`docs/android/`**: Ayrı ve korunan Android yayınlama dokümantasyonudur. Silinmez, bozulmaz ve İngilizce olarak korunur.
-- **`site/`**: `mkdocs build` çıktısıdır (`.gitignore` içinde). Manuel düzenlenmez.
+- **`dist/`**: `npm run build` statik çıktısıdır. Kaynak dosyalar üzerinden güncellenir.
 - **`engine-readme.md`**: İç ticari/SaaS planıdır (`.gitignore` içinde). Public dokümanlara taşınmaz.
 - **`docs/ai-dev/`**: Altyapı standartları, port stratejisi veya güvenlik baseline'ı değiştiğinde `infra-context.md`, `app-contracts.md` ve `context-templates.md` aynı değişiklikte güncellenmelidir.
 
@@ -75,47 +60,28 @@ Dokümanlarda, reçetelerde ve şablonlarda tutarlılık için aşağıdaki hede
 
 ---
 
-## 6. Markdown Eklentileri & Tasarım Sistemi (`extra.css`)
+## 6. Markdown ve site tasarımı
 
-[`mkdocs.yml`](mkdocs.yml) içinde aktif olan eklentiler:
-
-- `pymdownx.highlight` (satır numaraları destekli kod blokları)
-- `pymdownx.superfences` (**Mermaid** diyagramları için ```` ```mermaid ````)
-- `pymdownx.tabbed` (`=== "Sekme 1"` formatında alternatif sekmeler)
-- `admonition` & `pymdownx.details` (`!!! tip`, `!!! warning`, `??? note` katlanabilir kutular)
-- `attr_list` & `md_in_html`
-
-### Tema & Özel CSS Bileşenleri
-
-Tasarım sistemi [`docs/stylesheets/extra.css`](docs/stylesheets/extra.css) dosyasında tanımlıdır.
-
-- **Renk şeması:** Varsayılan karanlık tema (`slate`) ve üst menüden seçilebilen aydınlık tema (`default`).
-- **Fontlar:** `DM Sans` (metin) ve `JetBrains Mono` (kod).
-- **Özel CSS Sınıfları (Landing / Portal Sayfaları İçin):**
-  - Ana sayfa `.sh-home`, `.sh-hero`, `.sh-hero__actions`, `.sh-btn`
-  - Trafik şeması `.sh-topology`
-  - Kurulum adımları `.sh-stepper`, `.sh-step`, `.sh-step__tag`
-  - Hızlı erişim `.sh-quick`
-
-> **Tasarım Kuralı:** Standart rehber sayfalarında saf Markdown + Admonition + Tab + Mermaid kullanın. Özel `.sh-*` HTML sınıflarını yalnızca portal/giriş sayfalarında (`docs/index.md` gibi) kullanın ve yeni inline `style="..."` yazmak yerine `extra.css` token'larını (`--surface-card`, `--accent`, `--border-subtle`) tercih edin.
+- Rehberleri `docs/` içinde tutun. Starlight sayfa başlığını frontmatter içindeki `title` alanından veya belgenin ilk H1 başlığından alır.
+- Aynı klasördeki sayfaları `[Bağlantı](sayfa.md)` biçiminde bağlayın. Bölüme bağlantı verirken mevcut Markdown dosya yoluna `#başlık` ekleyin.
+- Uyarılar için Starlight’ın `:::note`, `:::tip` ve `:::caution` kutularını kullanın. Katlanabilir içerik için `<details>`, sekmeler için MDX içinde `Tabs` ve `TabItem` kullanın.
+- Diyagramları `mermaid` kod bloğu olarak yazın. Diyagram çizici tarayıcıda ihtiyaç olduğunda yüklenir.
+- Stiller [`src/handbook.css`](src/handbook.css), üst ve yan menü bileşenleri [`src/components/`](src/components/) altındadır.
 
 ---
 
-## 7. CI/CD & Yayınlama
+## 7. CI/CD ve yayın
 
-[`.github/workflows/build.yml`](.github/workflows/build.yml) akışı `main` dalına her push'ta otomatik çalışır:
+[GitHub Actions akışı](.github/workflows/build.yml), pull request’lerde ve `main` dalında kilitli bağımlılıkları kurup üretim derlemesini çalıştırır. `main` derlemesinin doğrulanmış `dist/` çıktısı GitHub Pages’e yayınlanır.
 
-1. Python `3.12` kurulur.
-2. `pip install -r requirements.txt` ile pinlenmiş paketler yüklenir.
-3. `mkdocs build --strict` ile site doğrulanır.
-4. `mkdocs gh-deploy --force` ile `gh-pages` dalına yayınlanır.
+İlk Starlight yayınından önce repoda **Settings → Pages → Build and deployment → Source → GitHub Actions** seçili olmalıdır. Yayın yolu [`astro.config.mjs`](astro.config.mjs) içindeki `/production-handbook` taban adresini kullanır.
 
 ---
 
 ## 8. Değişiklik Öncesi Kontrol Listesi
 
 - [ ] Yeni dosya doğru rol dizinine mi eklendi? (`how-to/` vs `recipes/` vs `file-templates/` ayrımı)
-- [ ] [`mkdocs.yml`](mkdocs.yml) `nav:` bölümüne eklendi mi?
+- [ ] [`src/navigation.mjs`](src/navigation.mjs) içinde doğru bölüme eklendi mi?
 - [ ] Güvenlik standartlarına (Docker Gateway, non-root, pinlenmiş imaj, secret izole) uyuyor mu?
 - [ ] Altyapı/port/güvenlik kuralı değiştiyse `docs/ai-dev/` güncellendi mi?
-- [ ] `mkdocs build --strict` hatasız geçti mi?
+- [ ] `npm run build` hatasız geçti mi?

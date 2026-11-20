@@ -193,9 +193,9 @@ Primary down, standby hazir ise failover prosedurunu sirket standardina gore cal
 | :------ | :---- | :------------- |
 | Servis aktif mi | `systemctl is-active postgresql` | `active` olmalı |
 | DB login calisiyor mu | `sudo -u postgres psql -c 'SELECT 1;'` | `1` dönmeli |
-| Port acik mi | `ss -ltnp | rg '5432|3306'` | DB portu dinlemeli |
+| Port acik mi | `ss -ltnp \| rg '5432\|3306'` | DB portu dinlemeli |
 | Disk sorunu var mi | `df -h` | Kritik partition `%90` üstü olmamalı |
-| OOM izleri var mi | `journalctl -k --since "1 hour ago" | rg 'oom|killed process'` | Yeni OOM olmamalı |
+| OOM izleri var mi | `journalctl -k --since "1 hour ago" \| rg 'oom\|killed process'` | Yeni OOM olmamalı |
 | Uygulama baglantisi | `curl -fsS https://<app>/healthz` | DB baglantili health check geçmeli |
 
 ## 8. Escalation Kriterleri

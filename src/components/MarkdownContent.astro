@@ -1,0 +1,18 @@
+---
+import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+---
+
+<Default><slot /></Default>
+
+<script>
+  const diagrams = document.querySelectorAll<HTMLElement>('.handbook-mermaid');
+
+  if (diagrams.length) {
+    const { default: mermaid } = await import('mermaid');
+    const dark = document.documentElement.dataset.theme === 'dark';
+    mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: dark ? 'dark' : 'default' });
+    await mermaid.run({ nodes: diagrams }).catch((error) => {
+      console.error('Mermaid diagram could not be rendered.', error);
+    });
+  }
+</script>

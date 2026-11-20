@@ -148,7 +148,7 @@ grep -R "^vm.swappiness=10$" /etc/sysctl.conf /etc/sysctl.d 2>/dev/null
 
 | Kontrol | Komut | Beklenen Sonuç |
 | :------ | :---- | :------------- |
-| Secret leak var mı | `rg -n '(password|token|secret|key)' .` | Hardcoded secret olmamalı |
+| Secret leak var mı | `rg -n '(password\|token\|secret\|key)' .` | Hardcoded secret olmamalı |
 | Syntax kontrolü | `bash -n <script>.sh` | Parse hatası olmamalı |
 | Lint kontrolü | `shellcheck <script>.sh` | Kritik hata olmamalı |
 | Root gerekliliği doğru mu | Script başındaki EUID kontrolü | Gereksiz root kullanımı olmamalı |

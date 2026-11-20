@@ -1,0 +1,38 @@
+:root {
+  --sl-content-width: 46rem;
+  --sl-sidebar-width: 17rem;
+  --sl-color-accent-low: #23304f;
+  --sl-color-accent: #9cb5fa;
+  --sl-color-accent-high: #dfe7ff;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #eaf0ff;
+  --sl-color-accent: #334e9e;
+  --sl-color-accent-high: #243577;
+}
+
+.hero {
+  padding-block: clamp(2.5rem, 6vw, 4.25rem);
+}
+
+.sl-markdown-content details {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--sl-color-hairline-light);
+  border-radius: 0.4rem;
+}
+
+.sl-markdown-content summary {
+  font-weight: 600;
+}
+
+.sl-markdown-content .handbook-mermaid {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--sl-color-bg-inline-code);
+}
+
+.sl-markdown-content .handbook-mermaid svg {
+  display: block;
+  margin-inline: auto;
+}

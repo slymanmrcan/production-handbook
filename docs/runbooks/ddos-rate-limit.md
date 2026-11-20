@@ -88,8 +88,8 @@ CPU veya connection backlog host seviyesinde eriyor mu kontrol edin.
 | :------ | :------------ | :------------- |
 | Legit trafik çalışıyor mu | `curl -fsS https://<app>/healthz` | 200 dönmeli |
 | Abusive IP bloklu mu | `sudo ufw status numbered` | Beklenen deny kuralı görünmeli |
-| Nginx rate limit aktif mi | `nginx -T | rg -n 'limit_req|limit_conn'` | Limit kuralları görünmeli |
-| Bağlantı sayısı normale döndü mü | `ss -Htan state established '( sport = :80 or sport = :443 )' | wc -l` | Sayı düşmeli |
+| Nginx rate limit aktif mi | `nginx -T \| rg -n 'limit_req\|limit_conn'` | Limit kuralları görünmeli |
+| Bağlantı sayısı normale döndü mü | `ss -Htan state established '( sport = :80 or sport = :443 )' \| wc -l` | Sayı düşmeli |
 | Uygulama hala ayakta mı | `systemctl status nginx` | `active` olmalı |
 
 ## 6. Escalation Kriterleri

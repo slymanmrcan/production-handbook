@@ -231,8 +231,8 @@ En sağlıklı model genelde şudur:
 | Timezone | `timedatectl show --property=Timezone --value` | `UTC` dönmeli |
 | Locale | `locale` | `LANG=C.UTF-8` veya beklenen locale görünmeli |
 | Kullanıcı oluştu mu | `id deployer` | Kullanıcı ve `sudo` grubu görünmeli |
-| SSH hardening | `sshd -T | grep passwordauthentication` | `no` dönmeli |
-| Package baseline | `test -f /var/run/reboot-required && cat /var/run/reboot-required || echo "reboot not required"` | Upgrade sonrası reboot ihtiyacı görünür olmalı |
+| SSH hardening | `sshd -T \| grep passwordauthentication` | `no` dönmeli |
+| Package baseline | `test -f /var/run/reboot-required && cat /var/run/reboot-required \|\| echo "reboot not required"` | Upgrade sonrası reboot ihtiyacı görünür olmalı |
 
 ## 12. No-Go Durumları
 

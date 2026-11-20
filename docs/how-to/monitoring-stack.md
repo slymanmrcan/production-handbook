@@ -254,7 +254,7 @@ Grafana'da ilk bakılacak dashboard'lar:
 | Prometheus hazır mı | `curl -fsS http://127.0.0.1:9090/-/ready` | `Ready` dönmeli |
 | Alertmanager hazır mı | `curl -fsS http://127.0.0.1:9093/-/ready` | `Ready` dönmeli |
 | Grafana hazır mı | `curl -fsS http://127.0.0.1:3001/api/health` | `{"database":"ok"...}` benzeri çıktı dönmeli |
-| Node exporter açık mı | `curl -fsS http://127.0.0.1:9100/metrics | head` | Metrik çıktısı görünmeli |
+| Node exporter açık mı | `curl -fsS http://127.0.0.1:9100/metrics \| head` | Metrik çıktısı görünmeli |
 | Target'lar scrape ediliyor mu | `curl -fsS http://127.0.0.1:9090/api/v1/targets` | `node`, `prometheus` ve `app` hedefleri görünmeli |
 | Alarm kuralı yüklendi mi | `curl -fsS http://127.0.0.1:9090/api/v1/rules` | `host-alerts` grubu görünmeli |
 

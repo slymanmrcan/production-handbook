@@ -6,8 +6,9 @@ Yeni bir Ubuntu veya Debian sunucusu kuruyorsan Day 0 ile başla. Sunucun hazır
 - [Day 1 · Uygulamayı yayınla](#day-1)
 - [Day 2 · Canlı sistemi işlet](#day-2)
 
-!!! info "Başlamadan önce"
-    Sunucunun IP adresine, sağlayıcının verdiği başlangıç hesabına ve kendi SSH anahtarına ihtiyacın var. Ağ veya SSH ayarlarını değiştirmeden önce sağlayıcının kurtarma konsoluna erişebildiğini doğrula. Uygulamayı HTTPS üzerinden yayınlamak için yönetebildiğin bir alan adı veya alt alan adı hazırla.
+:::note[Başlamadan önce]
+Sunucunun IP adresine, sağlayıcının verdiği başlangıç hesabına ve kendi SSH anahtarına ihtiyacın var. Ağ veya SSH ayarlarını değiştirmeden önce sağlayıcının kurtarma konsoluna erişebildiğini doğrula. Uygulamayı HTTPS üzerinden yayınlamak için yönetebildiğin bir alan adı veya alt alan adı hazırla.
+:::
 
 ## Sunucuyu hazırla { #day-0 }
 
@@ -20,15 +21,20 @@ Henüz sunucun yoksa [bulut hazırlığından](../cloud/shared/index.md) başla.
 3. **Erişimi güvenli hale getir.** [SSH ayarlarını](../security/ssh.md) ve [UFW kurallarını](../security/firewall.md) uygula. Mevcut oturumu kapatmadan ikinci bir terminalde yeniden bağlan. [Fail2ban](../security/fail2ban.md) ve [otomatik güvenlik güncellemelerini](../security/updates.md) ayarla.
 4. **Docker’ı kur.** [Docker Engine ve Compose](../how-to/docker.md) kurulumunu bitir. [Docker Gateway kuralını](../security/docker-gateway.md) incele ve iç servisleri özel ağda tut.
 
-??? example "Kurulumu otomatikleştir"
-    Aynı kurulumu birden fazla sunucuda tekrarlıyorsan [Cloud-Init](../how-to/cloud-init.md) veya [Bootstrap betiğini](../scripts/library/bootstrap.md) incele.
+<details>
+<summary>Kurulumu otomatikleştir</summary>
 
-!!! check "Day 1’e geçmeden önce"
-    - `sudo sshd -t` hata vermemeli. Yeni SSH oturumu ve `sudo -v` başarılı olmalı.
-    - `sudo ufw status verbose` beklediğin erişim kurallarını göstermeli.
-    - `systemctl is-active docker` çıktısı `active` olmalı ve `docker compose version` sürümü göstermeli.
+Aynı kurulumu birden fazla sunucuda tekrarlıyorsan [Cloud-Init](../how-to/cloud-init.md) veya [Bootstrap betiğini](../scripts/library/bootstrap.md) incele.
 
-    [İlk kurulum kontrol listesini tamamla](../checklists/server-first-setup.md).
+</details>
+
+:::tip[Day 1’e geçmeden önce]
+- `sudo sshd -t` hata vermemeli. Yeni SSH oturumu ve `sudo -v` başarılı olmalı.
+- `sudo ufw status verbose` beklediğin erişim kurallarını göstermeli.
+- `systemctl is-active docker` çıktısı `active` olmalı ve `docker compose version` sürümü göstermeli.
+
+[İlk kurulum kontrol listesini tamamla](../checklists/server-first-setup.md).
+:::
 
 ## Uygulamayı yayınla { #day-1 }
 
@@ -38,16 +44,21 @@ Henüz sunucun yoksa [bulut hazırlığından](../cloud/shared/index.md) başla.
 2. **Uygulamayı çalıştır.** [Compose şablonunu](../file-templates/docker-compose.md) ve kullandığın servislerin [uygulama reçetelerini](../recipes/index.md) temel al. Parola ve anahtarları [secrets rehberine](../security/secrets.md) göre yönet.
 3. **HTTPS erişimini kur.** [Reverse proxy’yi](../how-to/reverse-proxy.md) kur, alan adını sunucuya yönlendir ve [TLS sertifikasını](../how-to/tls.md) ayarla. Proxy seçimine göre [Nginx](../recipes/nginx.md) veya [Traefik](../recipes/traefik.md) reçetesini takip et.
 
-??? example "Yapılandırma şablonları ve AI ile geliştirme"
-    - [.env örneği](../file-templates/env-example.md) ve [systemd servis şablonu](../file-templates/systemd.md)
-    - [AI destekli geliştirme](../ai-dev/index.md) ve [üretilen yapılandırmaları denetleme](../ai-dev/ai-audit-gates.md)
+<details>
+<summary>Yapılandırma şablonları ve AI ile geliştirme</summary>
 
-!!! check "Kullanıcı trafiğini açmadan önce"
-    - `docker compose config --quiet` hata vermemeli. `docker compose ps` sağlık kontrolü olan servisleri `healthy` göstermeli.
-    - Nginx kullanıyorsan `sudo nginx -t` başarılı olmalı. `curl -fsS https://app.example.com/healthz` komutunu kendi alan adın ve sağlık kontrolü yolunla çalıştırdığında uygulama başarılı yanıt vermeli.
-    - Yedekten geri dönmeyi ve önceki sürüme dönüş yolunu kontrol et.
+- [.env örneği](../file-templates/env-example.md) ve [systemd servis şablonu](../file-templates/systemd.md)
+- [AI destekli geliştirme](../ai-dev/index.md) ve [üretilen yapılandırmaları denetleme](../ai-dev/ai-audit-gates.md)
 
-    [Uygulama yayın kontrolünü](../checklists/app-launch.md) ve [canlıya geçiş kontrolünü](../checklists/prod-ready.md) tamamla.
+</details>
+
+:::tip[Kullanıcı trafiğini açmadan önce]
+- `docker compose config --quiet` hata vermemeli. `docker compose ps` sağlık kontrolü olan servisleri `healthy` göstermeli.
+- Nginx kullanıyorsan `sudo nginx -t` başarılı olmalı. `curl -fsS https://app.example.com/healthz` komutunu kendi alan adın ve sağlık kontrolü yolunla çalıştırdığında uygulama başarılı yanıt vermeli.
+- Yedekten geri dönmeyi ve önceki sürüme dönüş yolunu kontrol et.
+
+[Uygulama yayın kontrolünü](../checklists/app-launch.md) ve [canlıya geçiş kontrolünü](../checklists/prod-ready.md) tamamla.
+:::
 
 ## Canlı sistemi işlet { #day-2 }
 
@@ -57,7 +68,8 @@ Henüz sunucun yoksa [bulut hazırlığından](../cloud/shared/index.md) başla.
 2. **Yedekleri düzenli olarak doğrula.** [Yedekleme stratejini](../how-to/backups.md) belirle ve [test ortamında yedekten dön](../how-to/disaster-recovery-drill.md). Otomasyon gerekiyorsa [veritabanı yedekleme betiğine](../scripts/library/backup.md) bak.
 3. **Bakım ve olay müdahalesini planla.** [Haftalık bakım](../scripts/library/maintenance.md) ve [güvenlik denetimi](../scripts/library/audit.md) görevlerini planla. Kritik alarmları ilgili [olay müdahale rehberiyle](../runbooks/index.md) eşleştir. Belirti belirsizse [sorun giderme rehberinden](../troubleshooting/index.md) başla.
 
-!!! check "Düzenli işletim kontrolleri"
-    - Prometheus kullanıyorsan `curl -fsS http://localhost:9090/-/ready` başarılı dönmeli.
-    - Son yedeğin test ortamında geri yüklenebildiğini doğrula. Sıkıştırılmış bir yedek için `gzip -t YEDEK_DOSYASI.sql.gz` dosyanın bütünlüğünü kontrol eder.
-    - `systemctl --failed` kritik servis hatası göstermemeli. `df -h` ve `df -i` ile disk ve inode kullanımını izle.
+:::tip[Düzenli işletim kontrolleri]
+- Prometheus kullanıyorsan `curl -fsS http://localhost:9090/-/ready` başarılı dönmeli.
+- Son yedeğin test ortamında geri yüklenebildiğini doğrula. Sıkıştırılmış bir yedek için `gzip -t YEDEK_DOSYASI.sql.gz` dosyanın bütünlüğünü kontrol eder.
+- `systemctl --failed` kritik servis hatası göstermemeli. `df -h` ve `df -i` ile disk ve inode kullanımını izle.
+:::

@@ -10,11 +10,11 @@ Aşağıdaki maddelerden **herhangi biri** başarısızsa PR / deploy reddedilir
 
 | Kontrol | Ne Aranır? | Doğrulama Komutu |
 | :--- | :--- | :--- |
-| **Secret Sızıntısı** | Kodda, compose'da, Dockerfile `ENV`/`ARG` içinde veya git geçmişinde şifre/token olmamalı. | `rg -n -i '(password|secret|api_key|private_key|bearer)' .` |
+| **Secret Sızıntısı** | Kodda, compose'da, Dockerfile `ENV`/`ARG` içinde veya git geçmişinde şifre/token olmamalı. | `rg -n -i '(password\|secret\|api_key\|private_key\|bearer)' .` |
 | **Port / UFW Bypass** | `docker-compose.yml` içinde `0.0.0.0` veya çıplak `PORT:PORT` (edge 80/443 hariç) olmamalı. | `rg -n 'ports:' -A 5 docker-compose*.yml` |
-| **Root & Privilege** | `Dockerfile` içinde `USER` non-root olmalı; `privileged: true` veya `network_mode: host` olmamalı. | `rg -n 'USER |privileged|network_mode' Dockerfile docker-compose*.yml` |
+| **Root & Privilege** | `Dockerfile` içinde `USER` non-root olmalı; `privileged: true` veya `network_mode: host` olmamalı. | `rg -n 'USER \|privileged\|network_mode' Dockerfile docker-compose*.yml` |
 | **Güvenlik Duvarı & SSH** | Script veya config değişikliği UFW'yi kapatmamalı, `PermitRootLogin yes` veya `PasswordAuthentication yes` açmamalı. | `sshd -t && ufw status verbose` |
-| **Güvenilmeyen İndirme** | Script içinde `curl ... \| sh` veya checksum'sız binary indirme olmamalı. | `rg -n 'curl.*\|\s*(ba)?sh|wget.*\|\s*(ba)?sh' .` |
+| **Güvenilmeyen İndirme** | Script içinde `curl ... \| sh` veya checksum'sız binary indirme olmamalı. | `rg -n 'curl.*\|\s*(ba)?sh\|wget.*\|\s*(ba)?sh' .` |
 
 ---
 

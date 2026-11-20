@@ -1,6 +1,0 @@
-# MkDocs & Material Theme — Pinned Version Constraints
-# CRITICAL: Keep mkdocs <2.0 because MkDocs 2.0 introduces breaking changes
-# incompatible with Material for MkDocs 9.x.
-mkdocs>=1.6.1,<2.0
-mkdocs-material>=9.7.0,<10.0
-pymdown-extensions>=10.0,<13.0

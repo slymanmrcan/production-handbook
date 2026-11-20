@@ -91,5 +91,5 @@ Uygulamanızı Docker ile canlıya almadan önce bu teknik detayları kontrol ed
 | **ASPNETCORE_ENVIRONMENT** | `docker exec <container_id> printenv ASPNETCORE_ENVIRONMENT` | `Production` dönmeli. |
 | **Image Tag** | `docker inspect --format '{{.Config.Image}}' <container_id>` | `latest` yerine belirli tag veya digest görünmeli. |
 | **Smoke Request** | `curl -fsSI https://<app-url>/healthz` | 2xx/3xx ve beklenen header'lar dönmeli. |
-| **Rollback Artefact** | `docker image ls --digests | head` | Önceki image/tag erişilebilir olmalı. |
-| **Secret Kontrolü** | `rg -n '(password|secret|token|apikey)' docker-compose*.yml Dockerfile .env* .` | Hardcoded secret bulunmamalı; secret'ler dosya mount veya secrets mekanizması ile gelmeli. |
+| **Rollback Artefact** | `docker image ls --digests \| head` | Önceki image/tag erişilebilir olmalı. |
+| **Secret Kontrolü** | `rg -n '(password\|secret\|token\|apikey)' docker-compose*.yml Dockerfile .env* .` | Hardcoded secret bulunmamalı; secret'ler dosya mount veya secrets mekanizması ile gelmeli. |

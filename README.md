@@ -20,19 +20,17 @@ Production-ready Linux (Ubuntu/Debian) sunucu kurulumu, güvenlik sertleştirme 
 git clone https://github.com/slymanmrcan/production-handbook.git
 cd production-handbook
 
-# Sanal ortam & bağımlılıklar (pinlenmiş versiyonlar)
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+# Kurulum (Node.js 24 önerilir)
+npm ci
 
-# Lokal olarak çalıştır
-mkdocs serve
+# Yerel önizleme
+npm run dev
 
-# Değişiklik öncesi zorunlu doğrulama
-mkdocs build --strict
+# Üretim derlemesi ve bağlantı kontrolü
+npm run build
 ```
 
-Tarayıcıda `http://127.0.0.1:8000` adresini açın. Repo geliştirme detayları, versiyon sınırları ve tasarım sistemi için [`DEVELOPMENT.md`](DEVELOPMENT.md) dosyasına bakın.
+Yerel rehber `http://localhost:4321/production-handbook/` adresinde açılır. İçerik, navigasyon ve yayın ayrıntıları için [Geliştirme rehberine](DEVELOPMENT.md) bakın.
 
 ## 📝 Katkıda Bulunma
 

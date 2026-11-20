@@ -163,7 +163,7 @@ Bu durumda `ping example.com` basarisiz olabilir ama `resolvectl query` calisir.
 | Kontrol | Komut | Beklenen Sonuc |
 | :------ | :---- | :------------- |
 | Interface durumu | `ip -br addr` | Dogru interface `UP` olmali ve static IP görünmeli. |
-| Default route | `ip route | grep default` | Tek ve dogru gateway kaydi görünmeli. |
+| Default route | `ip route \| grep default` | Tek ve dogru gateway kaydi görünmeli. |
 | Resolver | `resolvectl status` | Beklenen DNS server'lar görünmeli. |
 | Gateway erişimi | `ping -c 3 <gateway-ip>` | Paket kaybi olmamali. |
 | Internet erişimi | `ping -c 3 1.1.1.1` | Cikis var olmali. |
