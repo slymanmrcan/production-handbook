@@ -1,340 +1,387 @@
 ---
-import { Icon } from '@astrojs/starlight/components';
 import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
 
 const base = import.meta.env.BASE_URL;
+
 const steps = [
   {
     id: 'sunucuyu-hazrla',
-    icon: 'server',
+    step: '1. Adım · Day 0',
     title: 'Sunucuyu hazırla',
-    description: 'SSH erişimini ve güvenlik duvarını ayarla, Docker’ı yükle.',
+    description: 'İlk SSH bağlantısını kur, kullanıcı ve güvenlik duvarı (UFW) ayarlarını tamamla, Docker Engine yükle.',
+    href: 'getting-started/roadmap/#day-0',
   },
   {
     id: 'uygulamay-yaynla',
-    icon: 'rocket',
+    step: '2. Adım · Day 1',
     title: 'Uygulamayı yayınla',
-    description: 'HTTPS erişimini kur ve kullanıcı trafiğini açmadan önce uygulamayı doğrula.',
+    description: 'Reverse proxy ve TLS sertifikasını kur, veritabanını iç ağa izole et ve konteynerleri ayağa kaldır.',
+    href: 'getting-started/roadmap/#day-1',
   },
   {
     id: 'canl-sistemi-islet',
-    icon: 'analytics',
+    step: '3. Adım · Day 2',
     title: 'Canlı sistemi işlet',
-    description: 'Servisleri izle ve yedekten geri dönmeyi dene.',
+    description: 'İzleme ve log rotasyonunu devreye al, otomatik yedeklemeyi kur ve geri yükleme (restore) testi yap.',
+    href: 'getting-started/roadmap/#day-2',
   },
 ] as const;
 
-const resources = [
-  { title: 'Canlıya geçiş kontrol listesi', path: 'checklists/prod-ready/', icon: 'notes' },
-  { title: 'Komut referansı', path: 'reference/', icon: 'laptop' },
-  { title: 'AI ile geliştirme', path: 'ai-dev/', icon: 'puzzle' },
+const categories = [
+  {
+    title: 'Kurulum & Mimari',
+    description: 'Sıfır sunucudan çalışan konteyner altyapısına geçiş rehberleri.',
+    mainLink: { label: 'Tüm kurulum rehberleri', path: 'how-to/' },
+    items: [
+      { label: 'İlk bağlantı ve temel sistem', path: 'how-to/base-os/' },
+      { label: 'Docker & Compose kurulumu', path: 'how-to/docker/' },
+      { label: 'Reverse Proxy & TLS (HTTPS)', path: 'how-to/reverse-proxy/' },
+      { label: 'Port stratejisi ve ağ mimarisi', path: 'architecture/port-strategy/' },
+      { label: 'Monitoring & merkezi loglama', path: 'how-to/monitoring-stack/' },
+    ],
+  },
+  {
+    title: 'Güvenlik',
+    description: 'Sunucu, ağ ve konteyner katmanları için zorunlu güvenlik standartları.',
+    mainLink: { label: 'Güvenlik genel bakış', path: 'security/' },
+    items: [
+      { label: 'SSH sertleştirme (Hardening)', path: 'security/ssh/' },
+      { label: 'UFW güvenlik duvarı kuralları', path: 'security/firewall/' },
+      { label: 'Docker Gateway (UFW bypass önleme)', path: 'security/docker-gateway/' },
+      { label: 'Konteyner güvenliği (Non-root)', path: 'security/docker/' },
+      { label: 'Şifre ve secret yönetimi', path: 'security/secrets/' },
+    ],
+  },
+  {
+    title: 'Şablon & Reçete',
+    description: 'Kopyala-yapıştır prod konfigürasyonları ve canlıya geçiş kontrol listeleri.',
+    mainLink: { label: 'Tüm reçeteler', path: 'recipes/' },
+    items: [
+      { label: 'Docker Compose temel şablonu', path: 'file-templates/docker-compose/' },
+      { label: 'PostgreSQL & Redis prod ayarları', path: 'recipes/postgres/' },
+      { label: '.NET Core & React + Nginx', path: 'recipes/dotnet/' },
+      { label: 'Nginx prod konfigürasyonu', path: 'file-templates/nginx/' },
+      { label: 'Canlıya geçiş (Go / No-Go) listesi', path: 'checklists/prod-ready/' },
+    ],
+  },
+  {
+    title: 'Olay & Arıza (Runbooks)',
+    description: 'Canlı sistemde kesinti, kaynak dolması veya erişim sorunlarında hızlı müdahale.',
+    mainLink: { label: 'Tüm runbooklar', path: 'runbooks/' },
+    items: [
+      { label: 'Servis kesintisi müdahalesi', path: 'runbooks/service-down/' },
+      { label: 'Veritabanı erişim sorunu', path: 'runbooks/db-down/' },
+      { label: 'Disk veya Inode dolması', path: 'runbooks/disk-full/' },
+      { label: 'OOM Kill & CPU yükselmesi', path: 'runbooks/oom-kill/' },
+      { label: 'Hızlı arıza teşhis komutları', path: 'troubleshooting/cheat-sheet/' },
+    ],
+  },
+  {
+    title: 'Araçlar, Scriptler & AI',
+    description: 'Hazır otomasyon scriptleri, CLI komut referansı ve AI geliştirme kuralları.',
+    mainLink: { label: 'Komut referansı', path: 'reference/' },
+    items: [
+      { label: 'Sunucu ilk kurulum (Bootstrap) scripti', path: 'scripts/library/bootstrap/' },
+      { label: 'Veritabanı yedekleme & restore scripti', path: 'scripts/library/backup/' },
+      { label: 'Linux, Ağ ve Docker komut referansı', path: 'reference/commands/system/' },
+      { label: 'AI ile geliştirme (Altyapı bağlamı)', path: 'ai-dev/infra-context/' },
+      { label: 'AI denetim kapıları (Audit Gates)', path: 'ai-dev/ai-audit-gates/' },
+    ],
+  },
 ] as const;
 ---
 
-<div class="home-roadmap not-content">
+<div class="home-layout not-content">
   <span id="sunucunu-kuruygulaman-yayna-al" aria-hidden="true"></span>
 
   <section aria-labelledby="kurulum-admlar">
-    <div class="section-title">
+    <div class="section-header">
       <AnchorHeading level={2} id="kurulum-admlar">Kurulum adımları</AnchorHeading>
+      <a class="section-more" href={`${base}getting-started/roadmap/`}>Yol haritasının tamamı →</a>
     </div>
-    <ol class="steps" role="list">
-      {steps.map(({ id, icon, title, description }, day) => (
+
+    <ol class="steps-grid" role="list">
+      {steps.map(({ id, step, title, description, href }) => (
         <li {id}>
-          <a class="step" href={`${base}getting-started/roadmap/#day-${day}`}>
-            <span class="step-meta">
-              <span class="step-icon"><Icon name={icon} size="1.35rem" /></span>
-              <span class="step-day">Day {day}</span>
-            </span>
-            <span class="step-title">{title}</span>
-            <span class="step-description">{description}</span>
+          <a class="step-card" href={`${base}${href}`}>
+            <span class="step-kicker">{step}</span>
+            <strong class="step-title">{title}</strong>
+            <span class="step-desc">{description}</span>
           </a>
         </li>
       ))}
     </ol>
   </section>
 
-  <nav class="resources" id="belirli-bir-is-icin-geldin-mi" aria-label="Hızlı bağlantılar">
-    {resources.map(({ title, path, icon }) => (
-      <a href={`${base}${path}`}><Icon name={icon} size="1.15rem" />{title}</a>
-    ))}
-  </nav>
+  <section aria-labelledby="belirli-bir-is-icin-geldin-mi">
+    <div class="section-header">
+      <AnchorHeading level={2} id="belirli-bir-is-icin-geldin-mi">Kategoriler ve hızlı erişim</AnchorHeading>
+    </div>
+
+    <div class="category-grid">
+      {categories.map(({ title, description, mainLink, items }) => (
+        <div class="category-card">
+          <div class="category-top">
+            <h3>{title}</h3>
+            <p>{description}</p>
+          </div>
+          <ul class="category-links" role="list">
+            {items.map((item) => (
+              <li>
+                <a href={`${base}${item.path}`}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
+          <a class="category-footer" href={`${base}${mainLink.path}`}>
+            {mainLink.label} →
+          </a>
+        </div>
+      ))}
+    </div>
+  </section>
 </div>
 
 <style>
-  :global(.hero:has(.home-hero-image)) {
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    overflow: hidden;
-    border: 1px solid #273754;
-    border-radius: 1.375rem;
-    padding: 0;
-    background: #0b1425;
+  /* Clean, Spacious Hero (Cloudflare / Stripe Docs style) */
+  :global([data-has-hero] .hero) {
+    display: block;
+    padding-block: clamp(1.5rem, 3.5vw, 2.75rem);
+    border-bottom: 1px solid var(--handbook-border);
   }
 
-  :global(.hero:has(.home-hero-image) .stack) {
-    grid-area: 1 / 1;
-    z-index: 1;
+  :global([data-has-hero] .hero .stack) {
     align-items: flex-start;
-    gap: 1.65rem;
-    padding: clamp(1.5rem, 5vw, 4rem);
-    padding-block-end: 0;
+    gap: 1.25rem;
+    max-width: 48rem;
+    margin: 0;
     text-align: start;
   }
 
-  :global(.hero:has(.home-hero-image) .copy) {
+  :global([data-has-hero] .hero .copy) {
     align-items: flex-start;
-    gap: 1.15rem;
+    gap: 0.75rem;
   }
 
-  :global(.hero:has(.home-hero-image) h1) {
-    color: #f6f8ff;
-    font-size: clamp(2rem, 8vw, 3.75rem);
-    font-weight: 750;
-    letter-spacing: -0.055em;
-    line-height: 1.05;
-    text-wrap: balance;
+  :global([data-has-hero] .hero h1) {
+    color: var(--sl-color-white);
+    font-size: clamp(1.85rem, 3.8vw, 2.75rem);
+    font-weight: 740;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
   }
 
-  :global(.hero:has(.home-hero-image) h1 span) {
-    display: block;
-    color: #ffb779;
-  }
-
-  :global(.hero:has(.home-hero-image) .tagline) {
-    max-width: 40ch;
-    color: #bdc8da;
-    font-size: clamp(1rem, 1.55vw, 1.16rem);
+  :global([data-has-hero] .hero .tagline) {
+    color: var(--sl-color-gray-2);
+    font-size: clamp(1rem, 1.35vw, 1.125rem);
     line-height: 1.65;
   }
 
-  :global(.hero:has(.home-hero-image) .actions) {
+  :global([data-has-hero] .hero .actions) {
     justify-content: flex-start;
-    gap: 0.65rem;
+    gap: 0.75rem;
   }
 
-  :global(.hero:has(.home-hero-image) .sl-link-button) {
-    min-height: 2.75rem;
-    border-radius: 0.65rem;
-    padding: 0.65rem 1rem;
+  :global([data-has-hero] .hero .sl-link-button) {
+    min-height: 2.5rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
     font-size: 0.875rem;
-    font-weight: 700;
+    font-weight: 600;
   }
 
-  :global(.hero:has(.home-hero-image) .primary) {
-    border-color: #ffb779;
-    background: #ffb779;
-    color: #281505;
+  :global([data-has-hero] .hero .primary) {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-accent);
+    color: #fff;
   }
 
-  :global(.hero:has(.home-hero-image) .primary:hover) {
-    border-color: #ffd0a7;
-    background: #ffd0a7;
-    color: #281505;
+  :global([data-has-hero] .hero .primary:hover) {
+    border-color: var(--sl-color-accent-high);
+    background: var(--sl-color-accent-high);
   }
 
-  :global(.hero:has(.home-hero-image) .secondary) {
-    border-color: #65738a;
-    background: #182439;
-    color: #ecf1fb;
-  }
-
-  :global(.hero:has(.home-hero-image) .secondary:hover) {
-    border-color: #aebbd0;
-    background: #25334a;
-  }
-
-  :global(.hero:has(.home-hero-image) .hero-html) {
-    grid-area: 2 / 1;
-    width: 100%;
-    margin: -0.5rem 0 0;
-    aspect-ratio: 2 / 1;
-    mask-image: linear-gradient(to bottom, transparent, #000 35%);
-  }
-
-  :global(.home-hero-image) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 63%;
-  }
-
-  .home-roadmap {
-    display: grid;
-    gap: 1.4rem;
-    margin-top: clamp(2rem, 4vw, 3rem);
-  }
-
-  .home-roadmap > span {
-    position: absolute;
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 1.35rem;
-    margin-bottom: 1.05rem;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--handbook-border);
-  }
-
-  .section-title :global(h2) {
-    color: var(--sl-color-white);
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 740;
-    letter-spacing: -0.035em;
-    line-height: 1.2;
-  }
-
-  .section-title :global(.sl-anchor-link) {
-    color: var(--sl-color-accent);
-  }
-
-  .steps {
-    display: grid;
-    gap: 0.9rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  .step {
-    display: grid;
-    align-content: start;
-    gap: 0.45rem;
-    min-height: 100%;
+  :global([data-has-hero] .hero .secondary) {
     border: 1px solid var(--handbook-border);
-    border-radius: 0.875rem;
-    padding: clamp(1.1rem, 2vw, 1.45rem);
     background: var(--handbook-surface);
     color: var(--sl-color-white);
-    text-decoration: none;
-    box-shadow: var(--handbook-shadow);
   }
 
-  .step:hover,
-  .step:focus-visible {
-    border-color: var(--sl-color-accent);
-  }
-
-  .step-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .step-icon {
-    display: grid;
-    width: 2.6rem;
-    height: 2.6rem;
-    place-items: center;
-    border-radius: 0.65rem;
-    background: var(--sl-color-accent-low);
-    color: var(--sl-color-accent-high);
-  }
-
-  .step-day {
-    color: var(--sl-color-gray-3);
-    font-family: var(--__sl-font-mono);
-    font-size: 0.8125rem;
-    font-weight: 650;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .step-title {
-    font-size: clamp(1.1rem, 1.7vw, 1.3rem);
-    font-weight: 720;
-    letter-spacing: -0.025em;
-    line-height: 1.35;
-  }
-
-  .step-description {
-    max-width: 39ch;
-    color: var(--sl-color-gray-2);
-    font-size: 1rem;
-    line-height: 1.55;
-  }
-
-  .resources {
-    display: grid;
-    gap: 0.25rem;
-    border: 1px solid var(--handbook-border);
-    border-radius: 0.875rem;
-    padding: 0.4rem;
+  :global([data-has-hero] .hero .secondary:hover) {
+    border-color: var(--sl-color-gray-4);
     background: var(--handbook-subtle);
   }
 
-  .resources a {
+  /* Main Home Layout */
+  .home-layout {
+    display: grid;
+    gap: 3rem;
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .home-layout > span {
+    position: absolute;
+  }
+
+  .section-header {
     display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-height: 2.75rem;
-    border-radius: 0.5rem;
-    padding: 0.65rem 0.9rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .section-header :global(h2) {
     color: var(--sl-color-white);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .section-header :global(.sl-anchor-link) {
+    display: none;
+  }
+
+  .section-more {
+    color: var(--sl-color-accent-high);
     font-size: 0.875rem;
-    font-weight: 650;
+    font-weight: 550;
     text-decoration: none;
   }
 
-  .resources a:hover {
-    background: var(--handbook-surface);
+  .section-more:hover {
     text-decoration: underline;
-    text-underline-offset: 0.2em;
   }
 
-  .resources :global(svg) {
-    flex-shrink: 0;
-    color: var(--sl-color-accent);
+  /* 3 Steps Row */
+  .steps-grid {
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
   }
 
-  @media (min-width: 46rem) {
-    .steps,
-    .resources {
+  .step-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    height: 100%;
+    padding: 1.25rem 1.35rem;
+    border: 1px solid var(--handbook-border);
+    border-radius: 0.65rem;
+    background: var(--handbook-surface);
+    color: var(--sl-color-white);
+    text-decoration: none;
+    transition: border-color 140ms ease;
+  }
+
+  .step-card:hover {
+    border-color: var(--sl-color-accent);
+  }
+
+  .step-kicker {
+    color: var(--sl-color-accent-high);
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .step-title {
+    font-size: 1.1rem;
+    font-weight: 680;
+    letter-spacing: -0.015em;
+  }
+
+  .step-desc {
+    color: var(--sl-color-gray-2);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  /* 5 Categories Directory Grid */
+  .category-grid {
+    display: grid;
+    gap: 1.15rem;
+  }
+
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.35rem;
+    border: 1px solid var(--handbook-border);
+    border-radius: 0.65rem;
+    background: var(--handbook-surface);
+  }
+
+  .category-top h3 {
+    margin: 0 0 0.35rem;
+    color: var(--sl-color-white);
+    font-size: 1.08rem;
+    font-weight: 680;
+    letter-spacing: -0.015em;
+  }
+
+  .category-top p {
+    margin: 0 0 1rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .category-links {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0;
+    margin: 0 0 1.15rem;
+    list-style: none;
+    border-top: 1px solid var(--handbook-border);
+    padding-top: 0.9rem;
+  }
+
+  .category-links a {
+    display: block;
+    color: var(--sl-color-gray-1);
+    font-size: 0.875rem;
+    line-height: 1.45;
+    text-decoration: none;
+  }
+
+  .category-links a:hover {
+    color: var(--sl-color-accent-high);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .category-footer {
+    display: inline-flex;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--handbook-border);
+    color: var(--sl-color-accent-high);
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .category-footer:hover {
+    text-decoration: underline;
+  }
+
+  @media (min-width: 48rem) {
+    .steps-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .resources a {
-      justify-content: center;
+    .category-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (min-width: 44rem) {
-    :global(.hero:has(.home-hero-image)) {
-      grid-template-columns: minmax(0, 60%) 1fr;
-      min-height: clamp(23rem, 32vw, 27rem);
-    }
-
-    :global(.hero:has(.home-hero-image) .stack) {
-      padding-block: 3.1rem;
-    }
-
-    :global(.hero:has(.home-hero-image) h1) {
-      font-size: clamp(2.35rem, 4.2vw, 3.75rem);
-    }
-
-    :global(.hero:has(.home-hero-image) .hero-html) {
-      position: absolute;
-      inset: 0 0 0 42%;
-      grid-area: auto;
-      width: auto;
-      margin: 0;
-      aspect-ratio: auto;
-      mask-image: linear-gradient(to right, transparent, #000 32%);
-    }
-
-    :global(.home-hero-image) {
-      object-position: 62% center;
+  @media (min-width: 68rem) {
+    .category-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>
